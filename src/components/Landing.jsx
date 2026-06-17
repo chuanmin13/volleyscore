@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import LoadingOverlay from './LoadingOverlay'
+import Icon from './Icon'
 
 const PwaBanner = () => {
   const [show, setShow] = useState(() => {
@@ -46,7 +47,7 @@ const PwaBanner = () => {
       {!isIOS && deferredPrompt && (
         <button className="pwa-banner-install btn" onClick={install}>安裝</button>
       )}
-      <button className="pwa-banner-close" onClick={dismiss} aria-label="關閉">✕</button>
+      <button className="pwa-banner-close" onClick={dismiss} aria-label="關閉"><Icon name="close" size={16} /></button>
     </div>
   )
 }
@@ -190,13 +191,13 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
           </div>
         </div>
 
-        <div className="landing-or"></div>
+        <div className="landing-or">/</div>
 
         <button
-          className="btn landing-btn landing-btn--offline"
+          className="btn landing-btn"
           onClick={onOffline}
         >
-          單機模式
+          快速開始
         </button>
       </div>
 

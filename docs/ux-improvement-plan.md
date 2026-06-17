@@ -691,3 +691,84 @@ ctrl-scores (position: absolute; inset: 0)
 | 無隊名時顯示空白 | 預設行為，符合設計意圖 |
 | 房間碼字體放大 | 維持現有大小 |
 | 誤觸加分 Undo 機制 | 暫不實作 |
+
+---
+
+## 第三輪 UX Review（ux-designer + ui-ux-pro-max，2026-06-17）
+
+> 工具：`.agents/skills/ux-designer` + `.agents/skills/ui-ux-pro-max`
+> 審查範圍：Accessibility、Touch Target、Microcopy、ARIA、Style Consistency
+
+### 已修正項目
+
+| 優先 | 問題 | 檔案 | 修正 |
+|------|------|------|------|
+| 🔴 Critical | 「顯示/關閉紀錄」按鈕文字邏輯反轉 | Controller.jsx | 用戶自行修正 |
+| 🔴 Critical | `landing-btn--controller` border 幾乎不可見（`#2e3a6e` 深藍邊框在深藍漸層上 contrast ≈1:1） | style.css | 用戶自行改為 `var(--accent)` |
+| 🟡 P2 | `ctrl-fab` 觸控面積 40→44px | style.css | 已修 |
+| 🟡 P2 | `card-toolbar` 無明確高度，跨裝置不穩定 | style.css | 加 `height: 52px` |
+| 🟡 P2 | 色票（Settings 顏色圓點）觸控面積 22→28px | style.css | 已修 |
+| 🟠 A11y | Settings overlay 無 ARIA（`role="dialog"`、`aria-modal`、`aria-labelledby`） | Controller.jsx | 已加 |
+| 🟠 A11y | 刪除紀錄按鈕 `✕` 無 aria-label，螢幕閱讀器不可用 | Controller.jsx | 已加 `aria-label="刪除第 N 局紀錄"` |
+| 🟠 A11y | Toast 無 aria-live，螢幕閱讀器不可見 | Toast.jsx | 已加 `role="status" aria-live="polite"` |
+
+### 已修正（補充）
+
+| 項目 | 說明 |
+|------|------|
+| Dead CSS 清理 | `style.css` 1341→1028 行，刪除 313 行舊版 `.nav-wrap`、`.hamburger`、`.open-nav`、`.calc-wrap`、`.card`、`.minus-wrap` 等 |
+
+### 待處理（低優先）
+
+| 優先 | 問題 | 說明 |
+|------|------|------|
+| 🟡 P3 | 文字符號 → SVG icons | ✅ 已實作，建立 `Icon.jsx`，替換 4 處 |
+| 🟠 A11y | `--text-muted` 對比度不達標 | `rgba(231,231,231,0.55)` 在 `#485696` 上約 2.3:1（WCAG AA 需 4.5:1）；改動影響全局視覺，需視覺驗證再處理 |
+| 🟠 A11y | Settings overlay 缺 focus trap | Tab 鍵可逃出 modal，需 JS 層 focus management |
+
+---
+
+### SVG 替換計劃
+
+**現有文字符號（4 處）：**
+
+| 檔案 | 位置 | 符號 | 用途 |
+|------|------|------|------|
+| `Controller.jsx:258` | FAB | `▼` / `▲` | 展開/收合 footer |
+| `Display.jsx:51` | records-toggle | `▲` / `▼` | 展開/收合局數紀錄 |
+| `Controller.jsx:269` | 刪除紀錄 | `✕` | 刪除單筆紀錄 |
+| `Landing.jsx:49` | PWA banner | `✕` | 關閉 banner |
+
+**建議方案：建立 `src/components/Icon.jsx`（集中管理，零依賴）**
+
+```jsx
+// src/components/Icon.jsx
+const paths = {
+  chevronDown: <polyline points="6 9 12 15 18 9" />,
+  chevronUp:   <polyline points="18 15 12 9 6 15" />,
+  close:       <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,
+}
+
+const Icon = ({ name, size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24"
+       fill="none" stroke="currentColor" strokeWidth="2"
+       strokeLinecap="round" strokeLinejoin="round">
+    {paths[name]}
+  </svg>
+)
+
+export default Icon
+```
+
+**替換後用法：**
+```jsx
+import Icon from './Icon'
+
+// FAB
+{footerOpen ? <Icon name="chevronDown" size={18} /> : <Icon name="chevronUp" size={18} />}
+
+// 刪除 / 關閉
+<Icon name="close" size={16} />
+```
+
+**風格一致性：** `stroke="currentColor" strokeWidth="2"` 與現有 leave-btn SVG 完全相同。

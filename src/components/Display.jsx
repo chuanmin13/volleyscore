@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import ConfirmModal from './ConfirmModal'
+import Icon from './Icon'
 
 const Display = ({ room, onLeave }) => {
   const { roomCode, roomData } = room
@@ -48,7 +49,7 @@ const Display = ({ room, onLeave }) => {
           className="records-toggle"
           onClick={() => setRecordsOpen(o => !o)}
         >
-          局數紀錄 {recordsOpen ? '▲' : '▼'}
+          局數紀錄 {recordsOpen ? <Icon name="chevronUp" size={16} /> : <Icon name="chevronDown" size={16} />}
         </button>
         <div className={`records-body ${recordsOpen ? 'open' : ''}`}>
           {records.map((r, i) => (

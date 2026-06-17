@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ConfirmModal from './ConfirmModal'
 import Toast from './Toast'
+import Icon from './Icon'
 import settingsIcon from '../assets/settings.svg'
 
 const INITIAL_OFFLINE_SCORE = () => {
@@ -152,8 +153,8 @@ const Controller = ({ room, onLeave }) => {
 
       {settingsOpen && settingsForm && (
         <div className="settings-overlay" onClick={() => setSettingsOpen(false)}>
-          <div className="settings-inner" onClick={e => e.stopPropagation()}>
-            <h3>設定隊伍</h3>
+          <div className="settings-inner" role="dialog" aria-modal="true" aria-labelledby="settings-title" onClick={e => e.stopPropagation()}>
+            <h3 id="settings-title">設定隊伍</h3>
             {['host', 'guest'].map(team => (
               <div key={team}>
                 <div className="settings-row">
@@ -255,7 +256,7 @@ const Controller = ({ room, onLeave }) => {
         onClick={() => { setFooterOpen(o => { if (o) setRecordsOpen(false); return !o }); }}
         aria-label={footerOpen ? '收合操作列' : '展開操作列'}
       >
-        {footerOpen ? '▼' : '▲'}
+        {footerOpen ? <Icon name="chevronDown" size={18} /> : <Icon name="chevronUp" size={18} />}
       </button>
 
       <footer className={`ctrl-footer${footerOpen ? ' open' : ''}`}>
@@ -266,7 +267,7 @@ const Controller = ({ room, onLeave }) => {
               : records.map((r, i) => (
                 <div key={i} className="ctrl-record-row">
                   <span>[Set {i + 1}] {r.host} : {r.guest}</span>
-                  <button className="btn delRecord" onClick={() => handleDeleteRecord(i)}>✕</button>
+                  <button className="btn delRecord" aria-label={`刪除第 ${i + 1} 局紀錄`} onClick={() => handleDeleteRecord(i)}><Icon name="close" size={14} /></button>
                 </div>
               ))
             }
@@ -278,7 +279,7 @@ const Controller = ({ room, onLeave }) => {
             className={`btn ctrl-btn ctrl-btn--records${recordsOpen ? ' active' : ''}`}
             onClick={() => setRecordsOpen(o => !o)}
           >
-            {recordsOpen ? '顯示' : '關閉'}紀錄
+            查看紀錄{recordsOpen ? '▾' : '▴'}
           </button>
           <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => { setResetConfirm(true); setFooterOpen(false); setRecordsOpen(false) }}>重設比數</button>
         </div>
