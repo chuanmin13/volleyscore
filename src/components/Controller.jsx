@@ -222,7 +222,10 @@ const Controller = ({ room, onLeave }) => {
               </div>
               <div className="score">{score[team]}</div>
             </div>
-            <button className="minus-btn btn" onClick={() => handleSub(team)}>−</button>
+            <div className="card-toolbar" style={{ backgroundColor: teams[`${team}Color`] }}>
+              <button className="card-toolbar-btn card-toolbar-btn--add" onClick={() => handleAdd(team)}>+</button>
+              <button className="card-toolbar-btn" onClick={() => handleSub(team)}>−</button>
+            </div>
           </div>
         ))}
       </div>
@@ -241,7 +244,7 @@ const Controller = ({ room, onLeave }) => {
             ? <p className="ctrl-records-empty">尚無紀錄</p>
             : records.map((r, i) => (
               <div key={i} className="ctrl-record-row">
-                <span>Set {i + 1}: {r.host} : {r.guest}</span>
+                <span>[Set {i + 1}] {r.host} : {r.guest}</span>
                 <button className="btn delRecord" onClick={() => handleDeleteRecord(i)}>✕</button>
               </div>
             ))
@@ -255,7 +258,7 @@ const Controller = ({ room, onLeave }) => {
           className={`btn ctrl-btn ctrl-btn--records${recordsOpen ? ' active' : ''}`}
           onClick={() => setRecordsOpen(o => !o)}
         >
-          紀錄{records.length > 0 ? ` (${records.length})` : ''} {recordsOpen ? '▼' : '▲'}
+          紀錄 {recordsOpen ? '▼' : '▲'}
         </button>
         <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => { setResetConfirm(true); setFooterOpen(false); setRecordsOpen(false) }}>⚠ 重設比數</button>
       </footer>
