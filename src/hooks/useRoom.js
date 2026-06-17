@@ -3,9 +3,11 @@ import { ref, set, get, update, onValue } from 'firebase/database'
 import { db } from '../firebase'
 
 const generateRoomCode = () => {
-  const letter = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]
-  const digits = Array.from({ length: 3 }, () => Math.floor(Math.random() * 10)).join('')
-  return letter + digits
+  const letters = Array.from({ length: 3 }, () =>
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]
+  ).join('')
+  const digit = Math.floor(Math.random() * 10)
+  return letters + digit
 }
 
 const initialRoomState = {

@@ -58,9 +58,6 @@ const RoomCodeInput = ({ onComplete, error, disabled }) => {
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(''))
   const refs = useRef([])
 
-  useEffect(() => {
-    setTimeout(() => refs.current[0]?.focus(), 1000)
-  }, [])
 
   const handleChange = (i, raw) => {
     const val = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(-1)
@@ -115,6 +112,7 @@ const RoomCodeInput = ({ onComplete, error, disabled }) => {
           inputMode="text"
           maxLength={2}
           value={d}
+          autoFocus={i === 0}
           disabled={disabled}
           aria-label={`房間碼第 ${i + 1} 碼`}
           onChange={e => handleChange(i, e.target.value)}
@@ -197,7 +195,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
         <div className="landing-or">/</div>
 
         <button
-          className="btn landing-btn"
+          className="btn landing-btn landing-btn--offline"
           onClick={onOffline}
         >
           快速開始
