@@ -81,7 +81,8 @@ export const useRoom = () => {
   // 局數紀錄
   const saveRecord = () => {
     if (!roomCode) return
-    const { records, score } = roomDataRef.current
+    const records = roomDataRef.current?.records || []
+    const score = roomDataRef.current?.score
     if (records.length >= 5) return
     update(ref(db, `rooms/${roomCode}`), {
       records: [...records, score],

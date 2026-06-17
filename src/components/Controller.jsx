@@ -37,7 +37,7 @@ const Controller = ({ room, onLeave }) => {
 
   const score = isOnline ? room.roomData.score : offlineScore
   const teams = isOnline ? room.roomData.teams : offlineTeams
-  const records = isOnline ? room.roomData.records : offlineRecords
+  const records = isOnline ? (room.roomData.records || []) : offlineRecords
   const roomCode = isOnline ? room.roomCode : null
 
   const handleAdd = team => {
