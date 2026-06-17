@@ -1,5 +1,5 @@
 const Toast = ({ visible, message }) => (
-  <div className={`toast${visible ? ' toast--visible' : ''}`}>
+  <div className={`toast${visible ? ' toast--visible' : ''}`} role="status" aria-live="polite">
     {message}
   </div>
 )
