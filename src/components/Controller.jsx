@@ -77,13 +77,12 @@ const Controller = ({ room, onLeave }) => {
   }
 
   const handleSave = () => {
-    if (records.length >= 5) {
+    if (records?.length >= 5) {
       setRecordsFull(true)
       return
     }
     if (isOnline) {
       room.saveRecord()
-      room.resetScore()
     } else {
       setOfflineRecords(prev => {
         const next = [...prev, offlineScore]
@@ -262,9 +261,9 @@ const Controller = ({ room, onLeave }) => {
       <footer className={`ctrl-footer${footerOpen ? ' open' : ''}`}>
         {recordsOpen && (
           <div className="ctrl-records-panel">
-            {records.length === 0
+            {records?.length === 0
               ? <p className="ctrl-records-empty">尚無紀錄</p>
-              : records.map((r, i) => (
+              : records?.map((r, i) => (
                 <div key={i} className="ctrl-record-row">
                   <span>[Set {i + 1}] {r.host} : {r.guest}</span>
                   <button className="btn delRecord" aria-label={`刪除第 ${i + 1} 局紀錄`} onClick={() => handleDeleteRecord(i)}><Icon name="close" size={14} /></button>

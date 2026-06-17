@@ -3,10 +3,9 @@ import { ref, set, get, update, onValue } from 'firebase/database'
 import { db } from '../firebase'
 
 const generateRoomCode = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  return Array.from({ length: 4 }, () =>
-    chars[Math.floor(Math.random() * chars.length)]
-  ).join('')
+  const letter = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]
+  const digits = Array.from({ length: 3 }, () => Math.floor(Math.random() * 10)).join('')
+  return letter + digits
 }
 
 const initialRoomState = {
@@ -84,7 +83,11 @@ export const useRoom = () => {
     if (!roomCode) return
     const { records, score } = roomDataRef.current
     if (records.length >= 5) return
-    update(ref(db, `rooms/${roomCode}`), { records: [...records, score] })
+    update(ref(db, `rooms/${roomCode}`), {
+      records: [...records, score],
+      score: { host: 0, guest: 0 },
+      updatedAt: Date.now(),
+    })
   }
 
   const deleteRecord = index => {

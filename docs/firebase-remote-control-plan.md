@@ -545,8 +545,8 @@ Firebase Console → Realtime Database → 規則，貼上以下內容後 **Publ
         ".read": true,
         ".write": true,
         "score": {
-          "host":      { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 999" },
-          "guest":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 999" },
+          "host":      { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 99" },
+          "guest":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 99" },
           "updatedAt": { ".validate": "newData.isNumber()" }
         },
         "teams": {
