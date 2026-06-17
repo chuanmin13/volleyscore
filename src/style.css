@@ -363,7 +363,7 @@ p.copy {
 }
 
 .team-name {
-    font-size: 5vh;
+    font-size: 2vh;
     height: fit-content;
     color: #fff;
     width: 100%;
@@ -449,7 +449,7 @@ p.copy {
 
 .landing-title {
   margin: 0;
-  font-size: clamp(2rem, 6vw, 4rem);
+  font-size: clamp(3rem, 7vw, 5rem);
   color: var(--accent);
   letter-spacing: 4px;
 }
@@ -523,9 +523,9 @@ p.copy {
   background: var(--border);
 }
 
-.landing-btn--offline {
+/* .landing-btn--offline {
   width: 100%;
-}
+} */
 
 /* Primary — 暖黃底 + 深藍字 */
 .landing-btn--display {
@@ -536,15 +536,13 @@ p.copy {
 .landing-btn--controller {
   background: transparent;
   color: var(--text);
-  border: 2px solid var(--border-mid);
+  border: 2px solid var(--accent-fg);
 }
 /* Ghost — 最低調 */
 .landing-btn--offline {
   background: transparent;
   color: var(--text-muted);
   border: 2px solid var(--border);
-  min-height: unset;
-  padding: 14px 28px;
 }
 .landing-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -683,7 +681,7 @@ p.copy {
 }
 
 .display-mode .team-name {
-  font-size: clamp(24px, 5vh, 60px);
+  font-size: clamp(20px, 2vh, 40px);
 }
 
 .room-badge {
@@ -906,6 +904,7 @@ p.copy {
   flex: 1;
   display: flex;
   flex-direction: row;
+  align-items: stretch;
   gap: 8px;
   padding: 60px 4px calc(4px + env(safe-area-inset-bottom, 0px));
   overflow: hidden;
@@ -946,7 +945,7 @@ p.copy {
   background: rgba(0, 0, 0, 0.1);
   border: none;
   color: #fff;
-  font-size: 1rem;
+  font-size: 2rem;
   cursor: pointer;
   transition: background 0.12s;
   font-family: inherit;
@@ -968,8 +967,8 @@ p.copy {
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   right: 16px;
   z-index: 20;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
@@ -1246,7 +1245,7 @@ p.copy {
 
   .ctrl-scores {
     flex-direction: column;
-    padding: 60px 4px 80px;
+    padding: 60px 4px calc(4px + env(safe-area-inset-bottom, 0px));
   }
 
   .ctrl-team-wrap {
@@ -1336,6 +1335,6 @@ p.copy {
     }
 
     .team-name {
-        font-size: 8vw;
+        font-size: 6vw;
     }
 }
