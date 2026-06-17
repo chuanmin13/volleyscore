@@ -31,11 +31,11 @@ const Display = ({ room, onLeave }) => {
       )}
       <div className="scores-wrap">
         <div className="score-card" style={{ backgroundColor: teams.hostColor }}>
-          <div className="team-name">{teams.hostName}</div>
+          {teams.showTeamNames && <div className="team-name">{teams.hostName}</div>}
           <div className="score">{score.host}</div>
         </div>
         <div className="score-card" style={{ backgroundColor: teams.guestColor }}>
-          <div className="team-name">{teams.guestName}</div>
+          {teams.showTeamNames && <div className="team-name">{teams.guestName}</div>}
           <div className="score">{score.guest}</div>
         </div>
       </div>

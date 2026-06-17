@@ -9,7 +9,7 @@ const INITIAL_OFFLINE_SCORE = () => {
 }
 
 const INITIAL_OFFLINE_TEAMS = {
-  hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd',
+  hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd', showTeamNames: false,
 }
 
 const PRESET_COLORS = ['#cd2424', '#244ecd', '#1f8f1f', '#d16a03', '#7b2d8b', '#1a1a1a']
@@ -181,6 +181,14 @@ const Controller = ({ room, onLeave }) => {
                 </div>
               </div>
             ))}
+            <div className="settings-row settings-row--toggle">
+              <label>顯示隊名</label>
+              <input
+                type="checkbox"
+                checked={!!settingsForm.showTeamNames}
+                onChange={e => setSettingsForm(f => ({ ...f, showTeamNames: e.target.checked }))}
+              />
+            </div>
             <div className="settings-actions">
               <button className="btn settings-apply" onClick={applySettings}>套用</button>
               <button className="btn settings-cancel" onClick={() => setSettingsOpen(false)}>取消</button>
@@ -225,9 +233,11 @@ const Controller = ({ room, onLeave }) => {
               style={{ backgroundColor: teams[`${team}Color`] }}
               onClick={() => handleAdd(team)}
             >
-              <div className="team-name">
-                {teams[`${team}Name`] || (team === 'host' ? '主隊' : '客隊')}
-              </div>
+              {teams.showTeamNames && (
+                <div className="team-name">
+                  {teams[`${team}Name`] || (team === 'host' ? '主隊' : '客隊')}
+                </div>
+              )}
               <div className="score">{score[team]}</div>
             </div>
             <div className="card-toolbar" style={{ backgroundColor: teams[`${team}Color`] }}>
@@ -268,7 +278,7 @@ const Controller = ({ room, onLeave }) => {
           >
             紀錄 {recordsOpen ? '▼' : '▲'}
           </button>
-          <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => { setResetConfirm(true); setFooterOpen(false); setRecordsOpen(false) }}>⚠ 重設比數</button>
+          <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => { setResetConfirm(true); setFooterOpen(false); setRecordsOpen(false) }}>重設比數</button>
         </div>
       </footer>
 
