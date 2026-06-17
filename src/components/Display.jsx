@@ -3,7 +3,7 @@ import ConfirmModal from './ConfirmModal'
 
 const Display = ({ room, onLeave }) => {
   const { roomCode, roomData } = room
-  const { score, teams, records } = roomData
+  const { score, teams, records = [] } = roomData
 
   const [recordsOpen, setRecordsOpen] = useState(false)
   const [leaveConfirm, setLeaveConfirm] = useState(false)
@@ -40,6 +40,9 @@ const Display = ({ room, onLeave }) => {
         </div>
       </div>
 
+      {recordsOpen && (
+        <div className="records-backdrop" onClick={() => setRecordsOpen(false)} />
+      )}
       <div className="records-drawer">
         <button
           className="records-toggle"

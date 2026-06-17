@@ -35,8 +35,8 @@ const App = () => {
       joinError={joinError}
     />)
   if (mode === 'display') return <Display room={room} onLeave={() => setMode('landing')} />
-  if (mode === 'controller') return <Controller room={room} />
-  if (mode === 'offline') return <Controller room={null} /> // 單機模式沿用 sessionStorage
+  if (mode === 'controller') return <Controller room={room} onLeave={() => setMode('landing')} />
+  if (mode === 'offline') return <Controller room={null} onLeave={() => setMode('landing')} />
 }
 
 export default App
