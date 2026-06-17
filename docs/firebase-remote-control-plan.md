@@ -624,7 +624,7 @@ Firebase `apiKey` 在前端必然公開，透過 Google Cloud Console 限制它�
 6. [x] Step 6：Display component + display mode CSS
 7. [x] Step 7：Controller component
 8. [x] Step 8：vite-plugin-pwa 設定
-9. [ ] Step 9-a：vite.config.js 加 base 路徑
+9. [x] Step 9-a：vite.config.js 加 base 路徑
 10. [ ] Step 9-b：Firebase Database 規則 Publish
 11. [ ] 整合測試：雙裝置驗證即時同步
 12. [ ] Step 9-c：部署後設定 API Key HTTP referrer 限制
