@@ -11,7 +11,7 @@ const generateRoomCode = () => {
 
 const initialRoomState = {
   score: { host: 0, guest: 0 },
-  teams: { hostName: '', guestName: '', hostColor: '#cd2424', guestColor: '#244ecd' },
+  teams: { hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd' },
   records: [],
 }
 

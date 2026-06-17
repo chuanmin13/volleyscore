@@ -8,7 +8,7 @@ const INITIAL_OFFLINE_SCORE = () => {
 }
 
 const INITIAL_OFFLINE_TEAMS = {
-  hostName: '', guestName: '', hostColor: '#cd2424', guestColor: '#244ecd',
+  hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd',
 }
 
 const Controller = ({ room }) => {

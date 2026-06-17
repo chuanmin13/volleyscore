@@ -2,10 +2,28 @@
     box-sizing: border-box;
 }
 
+:root {
+  --bg:          #485696;
+  --bg-dark:     #2e3a6e;
+  --bg-surface:  rgba(46, 58, 110, 0.8);
+  --bg-gradient: linear-gradient(160deg, #485696 0%, #2e3a6e 100%);
+  --text:        #e7e7e7;
+  --text-muted:  rgba(231, 231, 231, 0.55);
+  --accent:      #f9c784;
+  --accent-fg:   #2e3a6e;
+  --energy:      #f24c00;
+  --energy-fg:   #fff;
+  --warm:        #fc7a1e;
+  --border:      rgba(231, 231, 231, 0.2);
+  --border-mid:  rgba(231, 231, 231, 0.4);
+}
+
 html {
     height: 100%;
     width: 100%;
     touch-action: manipulation;
+    overflow: hidden;
+    overscroll-behavior: none;
 }
 
 body {
@@ -16,12 +34,21 @@ body {
     width: 100%;
     max-width: 768px;
     touch-action: manipulation;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+#root {
+    height: 100%;
+    overflow: hidden;
 }
 
 /* 手機直式 */
 .container {
     width: 100%;
     height: 100%;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 /* nav-bar */
@@ -411,18 +438,19 @@ p.copy {
    ========================================= */
 .landing {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 32px;
-  background: linear-gradient(135deg, #feb692 10%, #ea5455 100%);
+  background: var(--bg-gradient);
 }
 
 .landing-title {
   margin: 0;
   font-size: clamp(2rem, 6vw, 4rem);
-  color: #fff;
+  color: var(--accent);
   letter-spacing: 4px;
 }
 
@@ -452,10 +480,26 @@ p.copy {
   opacity: 0.85;
 }
 
-.landing-btn--display   { background: rgba(36, 78, 205, 0.85); }
-.landing-btn--controller { background: rgba(55, 103, 80, 0.85); }
-.landing-btn--offline   { background: rgba(0, 0, 0, 0.3); min-height: unset; padding: 14px 28px; }
-.landing-btn:disabled   { opacity: 0.6; cursor: not-allowed; }
+/* Primary — 暖黃底 + 深藍字 */
+.landing-btn--display {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+/* Secondary — 半透明框 */
+.landing-btn--controller {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--border-mid);
+}
+/* Ghost — 最低調 */
+.landing-btn--offline {
+  background: transparent;
+  color: var(--text-muted);
+  border: 2px solid var(--border);
+  min-height: unset;
+  padding: 14px 28px;
+}
+.landing-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Join form */
 .join-form {
@@ -520,8 +564,8 @@ p.copy {
   gap: 12px;
 }
 
-.landing-btn--join { background: rgba(55, 103, 80, 0.85); min-height: unset; padding: 14px 32px; }
-.landing-btn--back { background: rgba(0, 0, 0, 0.3); min-height: unset; padding: 14px 28px; }
+.landing-btn--join { background: var(--accent); color: var(--accent-fg); min-height: unset; padding: 14px 32px; }
+.landing-btn--back { background: transparent; color: var(--text-muted); border: 2px solid var(--border); min-height: unset; padding: 14px 28px; }
 
 /* Portrait fallback：按鈕改縱向 */
 @media (orientation: portrait) {
@@ -538,7 +582,10 @@ p.copy {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+  background: var(--bg-gradient);
+  color: var(--text);
 }
 
 .display-mode .scores-wrap {
@@ -562,7 +609,8 @@ p.copy {
   gap: 12px;
   font-size: 1rem;
   padding: 6px 16px;
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--bg-surface);
+  color: var(--text);
   letter-spacing: 4px;
   flex-shrink: 0;
   position: relative;
@@ -589,7 +637,7 @@ p.copy {
 
 .leave-btn:hover {
   opacity: 1;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(231, 231, 231, 0.15);
 }
 
 /* ConfirmModal */
@@ -604,12 +652,13 @@ p.copy {
 }
 
 .modal-box {
-  background: #fff;
+  background: var(--bg-dark);
   border-radius: 16px;
   padding: 28px 24px 20px;
   width: min(88vw, 320px);
   text-align: center;
-  color: #1a1a1a;
+  color: var(--text);
+  border: 1px solid var(--border-mid);
 }
 
 .modal-title {
@@ -640,13 +689,13 @@ p.copy {
 }
 
 .modal-btn--cancel {
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--border-mid);
+  color: var(--text);
 }
 
 .modal-btn--confirm {
-  background: #dc2626;
-  color: #fff;
+  background: var(--energy);
+  color: var(--energy-fg);
 }
 
 .records-drawer {
@@ -656,7 +705,8 @@ p.copy {
 .records-toggle {
   width: 100%;
   padding: 10px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--bg-surface);
+  color: var(--text);
   border: none;
   cursor: pointer;
   font-size: 1rem;
@@ -671,7 +721,7 @@ p.copy {
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bg-dark);
 }
 
 .records-body.open {
@@ -681,7 +731,8 @@ p.copy {
 
 .record-row {
   padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--border-mid);
+  color: var(--text);
   border-radius: 8px;
   font-size: 0.95rem;
 }
@@ -693,7 +744,10 @@ p.copy {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+  background: var(--bg-gradient);
+  color: var(--text);
 }
 
 .ctrl-header {
@@ -701,7 +755,8 @@ p.copy {
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--bg-surface);
+  color: var(--text);
   flex-shrink: 0;
 }
 
@@ -731,6 +786,7 @@ p.copy {
   gap: 8px;
   padding: 8px;
   overflow: hidden;
+  min-height: 0;
 }
 
 .ctrl-team-wrap {
@@ -740,6 +796,7 @@ p.copy {
   align-items: center;
   gap: 8px;
   overflow: hidden;
+  min-height: 0;
 }
 
 .ctrl-team-wrap .score-card {
@@ -768,22 +825,32 @@ p.copy {
   padding: 0;
 }
 
+@media (orientation: landscape) and (max-height: 450px) {
+  .minus-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.5rem;
+  }
+}
+
 .ctrl-footer {
   display: flex;
   justify-content: space-between;
   padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--bg-surface);
   flex-shrink: 0;
 }
 
 .ctrl-btn {
   padding: 10px 28px;
   font-size: 1rem;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--border);
+  color: var(--text);
 }
 
 .ctrl-btn--reset {
-  background: rgba(180, 30, 30, 0.35);
+  background: rgba(242, 76, 0, 0.3);
+  color: var(--text);
 }
 
 /* Toast */
@@ -821,16 +888,19 @@ p.copy {
 }
 
 .settings-inner {
-  background: #fff;
+  background: var(--bg-dark);
+  color: var(--text);
   border-radius: 16px;
   padding: 24px;
   width: min(90vw, 400px);
+  border: 1px solid var(--border-mid);
 }
 
 .settings-inner h3 {
   margin: 0 0 16px;
   text-align: center;
   font-size: 1.2rem;
+  color: var(--accent);
 }
 
 .settings-row {
@@ -844,15 +914,18 @@ p.copy {
   width: 70px;
   font-size: 0.9rem;
   flex-shrink: 0;
+  color: var(--text-muted);
 }
 
 .settings-row input[type="text"] {
   flex: 1;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-mid);
   border-radius: 8px;
   padding: 8px;
   font-size: 1rem;
   font-family: "Concert One", "Kosugi Maru", sans-serif, cursive;
+  background: var(--bg-surface);
+  color: var(--text);
 }
 
 .settings-row input[type="color"] {
@@ -865,7 +938,7 @@ p.copy {
 }
 
 .settings-records {
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border);
   margin-top: 12px;
   padding-top: 12px;
 }
@@ -873,7 +946,7 @@ p.copy {
 .settings-records h4 {
   margin: 0 0 8px;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .settings-record-row {
@@ -882,6 +955,7 @@ p.copy {
   align-items: center;
   padding: 4px 0;
   font-size: 0.9rem;
+  color: var(--text);
 }
 
 .settings-actions {
@@ -892,13 +966,15 @@ p.copy {
 }
 
 .settings-apply {
-  background: rgb(55, 103, 80);
+  background: var(--warm);
+  color: #fff;
   padding: 10px 28px;
   font-size: 1rem;
 }
 
 .settings-cancel {
-  background: #888;
+  background: var(--border-mid);
+  color: var(--text);
   padding: 10px 28px;
   font-size: 1rem;
 }
@@ -921,15 +997,16 @@ p.copy {
   }
 
   .ctrl-team-wrap {
+    flex: 1;
     flex-direction: row;
-    flex: unset;
     width: 100%;
-    height: auto;
+    min-height: 0;
   }
 
   .ctrl-team-wrap .score-card {
     flex: 1;
-    height: 160px;
+    height: auto;
+    min-height: 0;
   }
 }
 
