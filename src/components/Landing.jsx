@@ -168,35 +168,37 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
       {creating && <LoadingOverlay />}
       <h1 className="landing-title">VolleyScore</h1>
 
-      <div className="landing-remote-group">
-        <p className="landing-group-hint">一台顯示比分，另一台遠端控制</p>
-        <div className="landing-actions">
-          <button
-            className="btn landing-btn landing-btn--display"
-            onClick={handleCreate}
-            disabled={creating}
-          >
-            {creating ? '建立中…' : '建立房間'}
-            <span className="landing-btn-sub">顯示端</span>
-          </button>
-          <button
-            className="btn landing-btn landing-btn--controller"
-            onClick={() => setView('join')}
-          >
-            加入房間
-            <span className="landing-btn-sub">控制端</span>
-          </button>
+      <div className="landing-body">
+        <div className="landing-remote-group">
+          <p className="landing-group-hint">一台顯示比分，另一台遠端控制</p>
+          <div className="landing-actions">
+            <button
+              className="btn landing-btn landing-btn--display"
+              onClick={handleCreate}
+              disabled={creating}
+            >
+              {creating ? '建立中…' : '建立房間'}
+              <span className="landing-btn-sub">顯示端</span>
+            </button>
+            <button
+              className="btn landing-btn landing-btn--controller"
+              onClick={() => setView('join')}
+            >
+              加入房間
+              <span className="landing-btn-sub">控制端</span>
+            </button>
+          </div>
         </div>
+
+        <div className="landing-or"></div>
+
+        <button
+          className="btn landing-btn landing-btn--offline"
+          onClick={onOffline}
+        >
+          單機模式
+        </button>
       </div>
-
-      <div className="landing-or">或</div>
-
-      <button
-        className="btn landing-btn landing-btn--offline"
-        onClick={onOffline}
-      >
-        單機模式
-      </button>
 
       <PwaBanner />
     </div>
