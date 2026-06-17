@@ -30,7 +30,7 @@ const Controller = ({ room, onLeave }) => {
   const [resetConfirm, setResetConfirm] = useState(false)
   const [recordsFull, setRecordsFull] = useState(false)
   const [leaveConfirm, setLeaveConfirm] = useState(false)
-  const [footerOpen, setFooterOpen] = useState(false)
+  const [footerOpen, setFooterOpen] = useState(true)
   const [recordsOpen, setRecordsOpen] = useState(false)
   const [toast, setToast] = useState(false)
 
@@ -76,19 +76,21 @@ const Controller = ({ room, onLeave }) => {
   }
 
   const handleSave = () => {
-    setFooterOpen(false)
     if (records.length >= 5) {
       setRecordsFull(true)
       return
     }
     if (isOnline) {
       room.saveRecord()
+      room.resetScore()
     } else {
       setOfflineRecords(prev => {
         const next = [...prev, offlineScore]
         sessionStorage.setItem('records', JSON.stringify(next))
         return next
       })
+      setOfflineScore({ host: 0, guest: 0 })
+      sessionStorage.removeItem('nowScore')
     }
   }
 
@@ -253,7 +255,7 @@ const Controller = ({ room, onLeave }) => {
         onClick={() => { setFooterOpen(o => { if (o) setRecordsOpen(false); return !o }); }}
         aria-label={footerOpen ? '收合操作列' : '展開操作列'}
       >
-        {footerOpen ? '✕' : '‹'}
+        {footerOpen ? '▼' : '▲'}
       </button>
 
       <footer className={`ctrl-footer${footerOpen ? ' open' : ''}`}>
@@ -276,7 +278,7 @@ const Controller = ({ room, onLeave }) => {
             className={`btn ctrl-btn ctrl-btn--records${recordsOpen ? ' active' : ''}`}
             onClick={() => setRecordsOpen(o => !o)}
           >
-            紀錄 {recordsOpen ? '▼' : '▲'}
+            {recordsOpen ? '顯示' : '關閉'}紀錄
           </button>
           <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => { setResetConfirm(true); setFooterOpen(false); setRecordsOpen(false) }}>重設比數</button>
         </div>
