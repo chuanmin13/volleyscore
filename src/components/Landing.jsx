@@ -59,7 +59,7 @@ const RoomCodeInput = ({ onComplete, error, disabled }) => {
   const refs = useRef([])
 
   useEffect(() => {
-    refs.current[0]?.focus()
+    setTimeout(() => refs.current[0]?.focus(), 1000)
   }, [])
 
   const handleChange = (i, raw) => {

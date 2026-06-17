@@ -63,6 +63,7 @@ button.delRecord {
 .btn {
     border: none;
     border-radius: 12px;
+    background: transparent;
     color: #fff;
     opacity: 1;
     transition: 0.3s;
@@ -193,7 +194,8 @@ input:focus {
 .landing-body {
   display: flex;
   flex-direction: column;
-  align-items: baseline;
+  align-items: center;
+  justify-content: flex-end;
   gap: 24px;
   width: 100%;
   max-width: 380px;
@@ -325,6 +327,22 @@ input:focus {
 
 .landing-btn--join { background: var(--accent); color: var(--accent-fg); min-height: unset; padding: 14px 32px; }
 .landing-btn--back { background: transparent; color: var(--text-muted); border: 2px solid var(--border); min-height: unset; padding: 14px 28px; }
+
+/* 平板以上（portrait）：加大按鈕與字體 */
+@media (min-width: 768px) and (orientation: portrait) {
+  .landing-title {
+    font-size: clamp(3rem, 6vw, 6rem);
+  }
+  .landing-body {
+    max-width: 520px;
+  }
+  .landing-btn {
+    font-size: 1.3rem;
+    padding: 24px 40px;
+    min-width: 180px;
+    min-height: 110px;
+  }
+}
 
 /* Portrait fallback：按鈕改縱向 */
 @media (orientation: portrait) {
