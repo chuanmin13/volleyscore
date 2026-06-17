@@ -1,239 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=0" />
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=0" />
 
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-touch-fullscreen" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="ScoreCounter" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="VolleyScore" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-        <title>ScoreCounter</title>
+    <title>VolleyScore</title>
 
-        <!-- google-font -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Concert+One&family=Arima&family=Kosugi+Maru&display=swap"
-            rel="stylesheet"
-        />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Concert+One&family=Arima&family=Kosugi+Maru&display=swap" rel="stylesheet" />
 
-        <!-- icon -->
-        <link
-            rel="shortcut icon"
-            href="./scoreCalc-icon.svg"
-            type="image/x-icon"
-        />
-        <link rel="apple-touch-icon" sizes="128x128" href="./scoreCalc.png" />
+    <link rel="shortcut icon" href="/scoreCalc-icon.svg" type="image/x-icon" />
+    <link rel="apple-touch-icon" sizes="128x128" href="/scoreCalc.png" />
 
-        <!-- App manifest -->
-        <link rel="manifest" href="./manifest.json">
-
-        <meta name="theme-color" content="#ffffff" />
-
-        <link rel="stylesheet" href="./style.css" />
-    </head>
-
-    <body>
-        <div style="display: none">
-            <svg
-                version="1.1"
-                id="Capa_1"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                x="0px"
-                y="0px"
-                viewBox="0 0 310.285 310.285"
-                style="enable-background: new 0 0 310.285 310.285"
-                xml:space="preserve"
-            >
-                <path
-                    d="M155.143,0.001C69.597,0.001,0,69.597,0,155.143c0,85.545,69.597,155.142,155.143,155.142s155.143-69.597,155.143-155.142C310.285,69.597,240.689,0.001,155.143,0.001z M244.143,171.498c0,4.411-3.589,8-8,8h-163c-4.411,0-8-3.589-8-8v-32c0-4.411,3.589-8,8-8h163c4.411,0,8,3.589,8,8V171.498z"
-                />
-            </svg>
-        </div>
-
-        <div class="container">
-            <div class="hamburger">
-                <div class="line1"></div>
-                <div class="line2"></div>
-                <div class="line3"></div>
-            </div>
-            <button
-                class="btn outside-reset outside-btn"
-                style="line-height: 15px;"
-                onclick="resetScore();"
-            >
-                Reset<br />比數<br />歸零
-            </button>
-            <button class="btn record-set outside-btn" style="line-height: 15px;" onclick="recordset();">
-                Save<br />紀録<br />比分
-            </button>
-            <div class="nav-wrap">
-                <div class="open-nav">
-                    <div class="nav-list">
-                        <h1>Score Counter</h1>
-                        <div class="nav-inner-wrap">
-                            <div class="info-wrap">
-                                <div class="info-text">
-                                    <h2>How to use:</h2>
-                                    <p>
-                                        1. Tap/click the score to add ONE point
-                                    </p>
-                                    <p>
-                                        2. Click minus button to subtract point
-                                    </p>
-                                </div>
-
-                                <div class="record-wrap" id="recordWrap"></div>
-                                <button
-                                    class="resetBtn btn"
-                                    style="padding: 12px;"
-                                    onclick="resetScore(); navToggle();"
-                                >
-                                    重置比數 Reset
-                                </button>
-                            </div>
-                            <div class="setting-wrap">
-                                <div class="input-wrap">
-                                    <h3>設定隊伍 Set Teams</h3>
-                                    <div class="input-row">
-                                        <label for="redTeamName"
-                                            >Name of Team A:
-                                        </label>
-                                        <input
-                                            id="redName"
-                                            type="text"
-                                            class="setName"
-                                            name="redTeamName"
-                                            placeholder="Team A"
-                                            value=""
-                                        />
-                                        <label for="redClr" />
-                                        <input
-                                            id="redClr"
-                                            name="redClr"
-                                            type="color"
-                                            class="setClr"
-                                            value="#cd2424"
-                                        />
-                                    </div>
-                                    <div class="input-row">
-                                        <label for="blueTeamName"
-                                            >Name of Team B:
-                                        </label>
-                                        <input
-                                            id="blueName"
-                                            type="text"
-                                            class="setName"
-                                            name="blueTeamName"
-                                            placeholder="Team B"
-                                            value=""
-                                        />
-                                        <label for="blueClr" />
-                                        <input
-                                            id="blueClr"
-                                            name="blueClr"
-                                            type="color"
-                                            class="setClr"
-                                            value="#244ecd"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="btn-wrap">
-                                    <button
-                                        class="setNameBtn btn"
-                                        onclick="setName()"
-                                    >
-                                        設定隊伍<br />Submit
-                                    </button>
-                                    <button
-                                        class="resetNameBtn btn"
-                                        onclick="resetName(); resetColor();"
-                                    >
-                                        重設<br />Reset
-                                    </button>
-                                    <button
-                                        class="startBtn btn"
-                                        onclick="navToggle(); resetScore(); resetColor(); resetName();"
-                                    >
-                                        直接開始新局<br />Skip
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="navFooter">
-                        <p class="copy">copyright &copy; chuanmin</p>
-                        <span>
-                            <a href="https://github.com/chuanmin13">
-                                <img
-                                    src="./github-icon.svg"
-                                    alt="github-chuanmin13"
-                                    height="20"
-                                    width="100"
-                                    style="opacity: 0.8"
-                                />
-                            </a>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="calc-wrap">
-                <div class="scores-wrap">
-                    <div class="red-wrap card">
-                        <div id="redMinus" class="minus-wrap">
-                            <svg
-                                width="100%"
-                                height="100%"
-                                fill="currentColor"
-                                class="icon-svg"
-                                style="
-                                    fill: rgba(255, 255, 255, 0.6);
-                                    display: inline-block;
-                                "
-                            >
-                                <use xlink:href="#Capa_1"></use>
-                            </svg>
-                            <!-- <button id="redMinus" class="minus-btn">-</button> -->
-                        </div>
-                        <div id="redTeam" class="red score-card">
-                            <div id="aName" class="team-name"></div>
-                            <div class="red-score score" data-color="red">
-                                0
-                            </div>
-                        </div>
-                    </div>
-                    <div class="blue-wrap card">
-                        <div id="blueMinus" class="minus-wrap">
-                            <svg
-                                width="100%"
-                                height="100%"
-                                fill="currentColor"
-                                class="icon-svg"
-                                style="
-                                    fill: rgba(255, 255, 255, 0.6);
-                                    display: inline-block;
-                                "
-                            >
-                                <use xlink:href="#Capa_1"></use>
-                            </svg>
-                        </div>
-                        <div id="blueTeam" class="blue score-card">
-                            <div id="bName" class="team-name"></div>
-                            <div class="blue-score score" data-color="blue">
-                                0
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script src="./app.js" defer></script>
-    </body>
+    <meta name="theme-color" content="#ffffff" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
