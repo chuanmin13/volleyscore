@@ -34,7 +34,7 @@ const App = () => {
       onOffline={() => setMode('offline')}
       joinError={joinError}
     />)
-  if (mode === 'display') return <Display room={room} />
+  if (mode === 'display') return <Display room={room} onLeave={() => setMode('landing')} />
   if (mode === 'controller') return <Controller room={room} />
   if (mode === 'offline') return <Controller room={null} /> // 單機模式沿用 sessionStorage
 }

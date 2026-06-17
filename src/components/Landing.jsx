@@ -1,10 +1,18 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import LoadingOverlay from './LoadingOverlay'
 
 const OTP_LENGTH = 4
 
 const RoomCodeInput = ({ onComplete, error, disabled }) => {
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(''))
   const refs = useRef([])
+
+  useEffect(() => {
+    if (error) {
+      setDigits(Array(OTP_LENGTH).fill(''))
+      refs.current[0]?.focus()
+    }
+  }, [error])
 
   const handleChange = (i, raw) => {
     const val = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(-1)
@@ -91,6 +99,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
   if (view === 'join') {
     return (
       <div className="landing">
+        {joining && <LoadingOverlay />}
         <h1 className="landing-title">VolleyScore</h1>
         <div className="join-form">
           <p className="join-label">輸入房間碼</p>
@@ -111,6 +120,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
 
   return (
     <div className="landing">
+      {creating && <LoadingOverlay />}
       <h1 className="landing-title">VolleyScore</h1>
       <div className="landing-actions">
         <button

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import ConfirmModal from './ConfirmModal'
+import Toast from './Toast'
 
 const INITIAL_OFFLINE_SCORE = () => {
   const saved = sessionStorage.getItem('nowScore')
@@ -21,6 +23,10 @@ const Controller = ({ room }) => {
 
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [settingsForm, setSettingsForm] = useState(null)
+
+  const [resetConfirm, setResetConfirm] = useState(false)
+  const [recordsFull, setRecordsFull] = useState(false)
+  const [toast, setToast] = useState(false)
 
   const score = isOnline ? room.roomData.score : offlineScore
   const teams = isOnline ? room.roomData.teams : offlineTeams
@@ -52,8 +58,8 @@ const Controller = ({ room }) => {
     }
   }
 
-  const handleReset = () => {
-    if (!confirm('確定重設比數？')) return
+  const doReset = () => {
+    setResetConfirm(false)
     if (isOnline) {
       room.resetScore()
     } else {
@@ -65,7 +71,7 @@ const Controller = ({ room }) => {
 
   const handleSave = () => {
     if (records.length >= 5) {
-      alert('紀錄已滿，請刪除後再新增')
+      setRecordsFull(true)
       return
     }
     if (isOnline) {
@@ -103,6 +109,8 @@ const Controller = ({ room }) => {
       setOfflineTeams(settingsForm)
     }
     setSettingsOpen(false)
+    setToast(true)
+    setTimeout(() => setToast(false), 1500)
   }
 
   return (
@@ -111,7 +119,7 @@ const Controller = ({ room }) => {
         <span className="ctrl-room-code">
           {isOnline ? `房間：${roomCode}` : '單機模式'}
         </span>
-        <button className="ctrl-settings-btn" onClick={openSettings}>≡</button>
+        <button className="ctrl-settings-btn" onClick={openSettings}>⚙</button>
       </header>
 
       {settingsOpen && settingsForm && (
@@ -153,6 +161,24 @@ const Controller = ({ room }) => {
         </div>
       )}
 
+      {resetConfirm && (
+        <ConfirmModal
+          message="確定重設比數？"
+          confirmLabel="重設"
+          cancelLabel="取消"
+          onConfirm={doReset}
+          onCancel={() => setResetConfirm(false)}
+        />
+      )}
+
+      {recordsFull && (
+        <ConfirmModal
+          message="紀錄已滿，請刪除後再新增"
+          confirmLabel="確認"
+          onConfirm={() => setRecordsFull(false)}
+        />
+      )}
+
       <div className="scores-wrap ctrl-scores">
         {['host', 'guest'].map(team => (
           <div key={team} className="ctrl-team-wrap">
@@ -172,9 +198,11 @@ const Controller = ({ room }) => {
       </div>
 
       <footer className="ctrl-footer">
-        <button className="btn ctrl-btn" onClick={handleSave}>Save 紀錄</button>
-        <button className="btn ctrl-btn" onClick={handleReset}>Reset 歸零</button>
+        <button className="btn ctrl-btn" onClick={handleSave}>儲存紀錄</button>
+        <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => setResetConfirm(true)}>⚠ 重設比數</button>
       </footer>
+
+      <Toast visible={toast} message="✓ 隊伍設定已儲存" />
     </div>
   )
 }
