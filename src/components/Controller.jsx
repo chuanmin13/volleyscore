@@ -104,6 +104,14 @@ const Controller = ({ room, onLeave }) => {
     }
   }
 
+  const handleLeave = () => {
+    if (!isOnline) {
+      sessionStorage.removeItem('nowScore')
+      sessionStorage.removeItem('records')
+    }
+    onLeave()
+  }
+
   const openSettings = () => {
     setSettingsForm({ ...teams })
     setSettingsOpen(true)
@@ -183,10 +191,10 @@ const Controller = ({ room, onLeave }) => {
 
       {leaveConfirm && (
         <ConfirmModal
-          message={isOnline ? '確定離開房間？' : '確定返回首頁？'}
+          message={isOnline ? '確定離開房間？' : '返回首頁將清除目前比分及所有紀錄'}
           confirmLabel="離開"
           cancelLabel="取消"
-          onConfirm={onLeave}
+          onConfirm={handleLeave}
           onCancel={() => setLeaveConfirm(false)}
         />
       )}
@@ -238,29 +246,30 @@ const Controller = ({ room, onLeave }) => {
         {footerOpen ? '✕' : '‹'}
       </button>
 
-      {footerOpen && recordsOpen && (
-        <div className="ctrl-records-panel">
-          {records.length === 0
-            ? <p className="ctrl-records-empty">尚無紀錄</p>
-            : records.map((r, i) => (
-              <div key={i} className="ctrl-record-row">
-                <span>[Set {i + 1}] {r.host} : {r.guest}</span>
-                <button className="btn delRecord" onClick={() => handleDeleteRecord(i)}>✕</button>
-              </div>
-            ))
-          }
-        </div>
-      )}
-
       <footer className={`ctrl-footer${footerOpen ? ' open' : ''}`}>
-        <button className="btn ctrl-btn" onClick={handleSave}>儲存紀錄</button>
-        <button
-          className={`btn ctrl-btn ctrl-btn--records${recordsOpen ? ' active' : ''}`}
-          onClick={() => setRecordsOpen(o => !o)}
-        >
-          紀錄 {recordsOpen ? '▼' : '▲'}
-        </button>
-        <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => { setResetConfirm(true); setFooterOpen(false); setRecordsOpen(false) }}>⚠ 重設比數</button>
+        {recordsOpen && (
+          <div className="ctrl-records-panel">
+            {records.length === 0
+              ? <p className="ctrl-records-empty">尚無紀錄</p>
+              : records.map((r, i) => (
+                <div key={i} className="ctrl-record-row">
+                  <span>[Set {i + 1}] {r.host} : {r.guest}</span>
+                  <button className="btn delRecord" onClick={() => handleDeleteRecord(i)}>✕</button>
+                </div>
+              ))
+            }
+          </div>
+        )}
+        <div className="ctrl-footer-btns">
+          <button className="btn ctrl-btn" onClick={handleSave}>儲存紀錄</button>
+          <button
+            className={`btn ctrl-btn ctrl-btn--records${recordsOpen ? ' active' : ''}`}
+            onClick={() => setRecordsOpen(o => !o)}
+          >
+            紀錄 {recordsOpen ? '▼' : '▲'}
+          </button>
+          <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => { setResetConfirm(true); setFooterOpen(false); setRecordsOpen(false) }}>⚠ 重設比數</button>
+        </div>
       </footer>
 
       <Toast visible={toast} message="✓ 隊伍設定已儲存" />
