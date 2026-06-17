@@ -1,7 +1,8 @@
 # UX 優化計劃
 
-> 來源：UX Design Review（2026-06-17）；測試回饋補充（2026-06-17）
+> 來源：UX Design Review（2026-06-17）；測試回饋補充（2026-06-17）；第二輪 UX Review（2026-06-17）
 > 範圍：Landing、Display、Controller、Settings Drawer
+> 設計規範：所有 UI/UX 改動須參考 `.agents/skills/ux-designer` skill（Visual Design、Interaction Design 規則）
 
 ---
 
@@ -21,20 +22,24 @@
 | 🟡 P2 | 設定套用後顯示回饋（✓ 已套用 Toast） | Settings | [x] |
 | 🟡 P2 | `confirm()` / `alert()` 改為 in-app modal | Controller | [x] |
 | 🟡 P2 | 按鈕文字統一為中文（Save→儲存、Reset→重設） | Controller | [x] |
-| 🟡 P2 | 設定 icon 從 ≡ 改為 SVG（`assets/settings.svg`） | Controller | [ ] |
-| 🟡 P2 | Controller header/footer 半透明 float，比分滿版 | Controller | [ ] |
-| 🟡 P2 | 提示使用者安裝 PWA / 隱藏瀏覽器網址列 | 共用 | [ ] |
-| 🟠 P3 | Landing 加情境說明文字 | Landing | [ ] |
-| 🟠 P3 | Records drawer 改 overlay，不壓縮比分區 | Display | [ ] |
-| 🟠 P3 | 隊伍色票加預設色選項，color picker 作自訂 | Settings | [ ] |
-| 🟠 P3 | OTP 格子補 `aria-label` | Landing Join | [ ] |
+| 🟡 P2 | 設定 icon 從 ≡ 改為 SVG（`assets/settings.svg`） | Controller | [x] |
+| 🟡 P2 | Controller header/footer 半透明 float，比分滿版 | Controller | [x] |
+| 🟡 P2 | 提示使用者安裝 PWA / 隱藏瀏覽器網址列 | 共用 | [x] |
+| 🟡 P2+ | Controller 加離開按鈕（同 Display 設計） | Controller | [x] |
+| 🟡 P2+ | 減分按鈕 float 在 score-card 上，比分卡真正滿版 | Controller | [x] |
+| 🟡 P2+ | 下方工具列改可收合 FAB（`‹` icon，左下角） | Controller | [x] |
+| 🟡 P2+ | Landing 背景漸層深化 + 遠端/單機分組 UI | Landing | [x] |
+| 🟠 P3 | Landing 加情境說明文字 | Landing | [x] |
+| 🟠 P3 | Records drawer 改 overlay，不壓縮比分區 | Display | [x] |
+| 🟠 P3 | 隊伍色票加預設色選項，color picker 作自訂 | Settings | [x] |
+| 🟠 P3 | OTP 格子補 `aria-label` | Landing Join | [x] |
 | 🟢 P4 | 顏色對比自動切換分數文字色（淺色背景→深色字） | Display/Controller | [ ] |
 | 🎨 設計 | **全 app 色調統一**（三畫面共用視覺語言） | 共用 | [x] |
 | 🎨 設計 | Landing 背景色改為競技感深色 | Landing | [x] |
 | 🎨 設計 | Landing 三顆按鈕建立視覺層次（主/次/ghost） | Landing | [x] |
 | 🎨 設計 | CSS 設計 token 化（色彩、圓角、spacing） | 共用 | [x] |
-| 🎨 設計 | 字體換 Barlow Condensed（運動感） | 共用 | [ ] |
-| 🎨 設計 | 統一圓角系統（卡片 16px、按鈕 12px、input 10px） | 共用 | [ ] |
+| 🎨 設計 | 字體換 Barlow Condensed（運動感） | 共用 | [x] |
+| 🎨 設計 | 統一圓角系統（卡片 16px、按鈕 12px、input 10px） | 共用 | [x] |
 
 ---
 
@@ -367,6 +372,315 @@ title, message, confirmLabel, cancelLabel, onConfirm, onCancel
 | 客隊預設色 | `#485696` → 改為 `#244ecd` | 藍色仍保留（白字對比佳且與背景有足夠區別度） |
 | ConfirmModal 確認鍵 | `--energy` | 保持警示感 |
 | 設定套用鍵 | `--warm` (#fc7a1e) | 正向操作用橙色 |
+
+---
+
+---
+
+## P2+ 詳細規格（第二輪 UX Review，2026-06-17）
+
+> UX 原則依據：ux-designer skill — Interaction Design（確認對話框、touch target）、Visual Design（視覺層次、8px grid、grouping by proximity）
+
+---
+
+### 20. Controller 離開按鈕
+
+**設計來源：** 與 Display `.leave-btn` 完全相同（複用 CSS class + SVG）
+
+**位置：** `ctrl-header` 最右側（與 settings icon 同側、settings 之後）
+
+> UX 注意：leave-btn 放右側與 Display 一致，形成全 app 統一肌肉記憶；settings 在 leave 左側（操作頻率高 > 破壞性操作）
+
+**SVG（同 Display）：**
+```jsx
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" strokeWidth="2"
+     strokeLinecap="round" strokeLinejoin="round">
+  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+  <polyline points="16 17 21 12 16 7"/>
+  <line x1="21" y1="12" x2="9" y2="12"/>
+</svg>
+```
+
+**行為：**
+- 點擊 → `ConfirmModal`
+  - 線上模式：`「確定離開房間？」` / 確認鍵「離開」/ 取消鍵「取消」
+  - 單機模式：`「確定返回首頁？」` / 確認鍵「返回」/ 取消鍵「取消」
+- 確認 → `onLeave()` prop（App.jsx 負責切換 mode）
+
+**Props 異動：**
+- `Controller` 新增 `onLeave` prop
+- `App.jsx` 兩處傳入 `onLeave={() => setMode('landing')}`
+
+**CSS：** 直接套用已有 `.leave-btn` class，無需新增樣式
+
+**Touch target：** 44×44px（`.leave-btn` 現有規格符合）
+
+---
+
+### 21. 減分按鈕 float + 比分卡真正滿版
+
+**目標：** score-card 填滿 ctrl-team-wrap，minus-btn 半透明浮在卡片底部中央
+
+**Layout 結構：**
+```
+ctrl-scores (position: absolute; inset: 0)
+  └─ ctrl-team-wrap × 2 (position: relative; flex: 1)
+       ├─ score-card (position: absolute; inset: 0)  ← 填滿整個 team-wrap
+       └─ minus-btn (position: absolute; bottom: 16px; left: 50%; translateX(-50%))
+```
+
+**ctrl-team-wrap：**
+```css
+.ctrl-team-wrap {
+  position: relative;
+  flex: 1;
+  /* 移除 flex-direction: column; gap: 8px; overflow: hidden; min-height: 0 */
+}
+```
+
+**score-card（在 ctrl-team-wrap 內）：**
+```css
+.ctrl-team-wrap .score-card {
+  position: absolute;
+  inset: 0;
+  /* flex: 1; height: auto 不再需要 */
+}
+```
+
+**minus-btn：**
+```css
+.minus-btn {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  /* 保留：width: 60px; height: 60px; border-radius: 50%; background: rgba(0,0,0,0.25) */
+}
+```
+
+**ctrl-scores padding 調整：**
+```css
+.ctrl-scores {
+  padding: 60px 4px 80px;
+  /* top: header 高度（60px）; bottom: FAB 44px + 16px bottom + 20px 間距 */
+}
+```
+> 80px bottom padding 確保 minus-btn 不被 FAB 遮蓋（FAB top = 16+44=60px；minus-btn bottom-edge = 80+16=96px from screen bottom，清空間）
+
+**Portrait media query 更新：**
+```css
+@media (orientation: portrait) {
+  .ctrl-scores { flex-direction: column; padding: 60px 4px 80px; }
+  .ctrl-team-wrap { flex: 1; width: 100%; /* 移除 flex-direction: row */ }
+  /* .ctrl-team-wrap .score-card 的 flex 相關規則可移除（已用 absolute） */
+}
+```
+
+---
+
+### 22. 下方工具列可收合 FAB
+
+**設計概念：**
+- 畫面預設乾淨，只有左下角一個小圓形 FAB
+- FAB icon：`‹`（chevron-left），暗示「向左展開」或「有更多」
+- 點擊 FAB → 工具列從底部滑入；FAB icon 變 `✕`（關閉）
+- 展開後工具列佔據底部，FAB 視覺上嵌入工具列左側
+
+**狀態：**
+| 狀態 | FAB icon | footer |
+|------|----------|--------|
+| 收合（預設） | `‹` | `translateY(100%)` 隱藏 |
+| 展開 | `✕` | `translateY(0)` 滑入 |
+
+> UX 原則：預設收合讓比分卡視覺更乾淨；`‹` 暗示可展開但不強迫注意力（Interaction Design：minimize steps，only surface actions when needed）
+
+**FAB 規格：**
+```css
+.ctrl-fab {
+  position: absolute;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  left: 16px;
+  z-index: 20;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--border-mid);
+  color: var(--text);
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.ctrl-fab:hover { background: rgba(0, 0, 0, 0.65); }
+.ctrl-fab.open { transform: rotate(180deg); /* optional spin effect */ }
+```
+
+**Footer（可收合）：**
+```css
+.ctrl-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: 72px;          /* 為 FAB 留位 */
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ctrl-footer.open { transform: translateY(0); }
+```
+
+**JSX state：** `const [footerOpen, setFooterOpen] = useState(false)`
+
+**操作後自動收合：**
+- `handleSave()` 結束後：`setFooterOpen(false)`
+- ⚠ 重設比數：`setResetConfirm(true); setFooterOpen(false)`
+
+---
+
+### 23. Landing 背景漸層深化 + 遠端/單機分組
+
+#### 23a. 背景漸層
+
+**現況：** `linear-gradient(160deg, #485696 0%, #2e3a6e 100%)` 方向感弱，明暗差不足
+
+**新漸層：**
+```css
+.landing {
+  background: linear-gradient(to bottom, #485696 0%, #2e3a6e 55%, #1a2347 100%);
+}
+```
+> 由亮藍 → 中藍 → 深海藍，由上往下增加縱深感，符合「舞台感深色背景」設計方向（ux-designer Visual Design：Color Usage — use depth to guide attention）
+
+**`--bg-gradient` token 同步更新：**
+```css
+--bg-gradient: linear-gradient(to bottom, #485696 0%, #2e3a6e 55%, #1a2347 100%);
+```
+
+#### 23b. 遠端/單機分組 UI
+
+**問題：** 三顆按鈕排排站，使用者看不出「建立房間+加入房間」是一對。（ux-designer Visual Design：group related items using proximity and shared containers）
+
+**新 Layout：**
+```
+┌──────────────────────────────────────────┐
+│              VolleyScore                 │
+│                                          │
+│  ╔══════════════════════════════════╗    │
+│  ║  一台顯示比分，另一台遠端控制      ║    │
+│  ║  ┌──────────────┐┌────────────┐  ║    │
+│  ║  │  建立房間     ││  加入房間   │  ║    │
+│  ║  │  顯示端       ││  控制端     │  ║    │
+│  ║  └──────────────┘└────────────┘  ║    │
+│  ╚══════════════════════════════════╝    │
+│                                          │
+│          ──────────────                  │
+│                                          │
+│         ┌──────────────────┐             │
+│         │     單機模式      │             │
+│         └──────────────────┘             │
+└──────────────────────────────────────────┘
+```
+
+**元件規格：**
+
+`.landing-remote-group`（外框容器）：
+```css
+.landing-remote-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 20px 16px;
+  border: 1px solid var(--border-mid);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  width: 100%;
+  max-width: 380px;
+}
+```
+
+`.landing-group-hint`（說明文字）：
+```css
+.landing-group-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+```
+
+`.landing-or`（分隔線）：
+```css
+.landing-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  width: 100%;
+  max-width: 380px;
+}
+.landing-or::before,
+.landing-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+```
+
+`.landing-btn--offline`（獨立單機按鈕）：
+```css
+/* 新增：寬度與 remote-group 對齊 */
+.landing-btn--offline {
+  width: 100%;
+  max-width: 380px;
+}
+```
+
+**JSX 結構（Landing main view）：**
+```jsx
+<div className="landing">
+  {creating && <LoadingOverlay />}
+  <h1 className="landing-title">VolleyScore</h1>
+
+  <div className="landing-remote-group">
+    <p className="landing-group-hint">一台顯示比分，另一台遠端控制</p>
+    <div className="landing-actions">
+      <button className="btn landing-btn landing-btn--display" ...>
+        建立房間 <span className="landing-btn-sub">顯示端</span>
+      </button>
+      <button className="btn landing-btn landing-btn--controller" ...>
+        加入房間 <span className="landing-btn-sub">控制端</span>
+      </button>
+    </div>
+  </div>
+
+  <div className="landing-or"></div>
+
+  <button className="btn landing-btn landing-btn--offline" onClick={onOffline}>
+    單機模式
+  </button>
+
+  <PwaBanner />
+</div>
+```
+
+**Portrait mode：** `.landing-actions` 內兩顆按鈕仍維持縱向排列（現有 media query 已覆蓋）
 
 ---
 

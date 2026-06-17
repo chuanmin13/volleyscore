@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ConfirmModal from './ConfirmModal'
 import Toast from './Toast'
+import settingsIcon from '../assets/settings.svg'
 
 const INITIAL_OFFLINE_SCORE = () => {
   const saved = sessionStorage.getItem('nowScore')
@@ -11,7 +12,9 @@ const INITIAL_OFFLINE_TEAMS = {
   hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd',
 }
 
-const Controller = ({ room }) => {
+const PRESET_COLORS = ['#cd2424', '#244ecd', '#1f8f1f', '#d16a03', '#7b2d8b', '#1a1a1a']
+
+const Controller = ({ room, onLeave }) => {
   const isOnline = room !== null
 
   // 單機模式 state
@@ -26,6 +29,9 @@ const Controller = ({ room }) => {
 
   const [resetConfirm, setResetConfirm] = useState(false)
   const [recordsFull, setRecordsFull] = useState(false)
+  const [leaveConfirm, setLeaveConfirm] = useState(false)
+  const [footerOpen, setFooterOpen] = useState(false)
+  const [recordsOpen, setRecordsOpen] = useState(false)
   const [toast, setToast] = useState(false)
 
   const score = isOnline ? room.roomData.score : offlineScore
@@ -70,6 +76,7 @@ const Controller = ({ room }) => {
   }
 
   const handleSave = () => {
+    setFooterOpen(false)
     if (records.length >= 5) {
       setRecordsFull(true)
       return
@@ -119,7 +126,18 @@ const Controller = ({ room }) => {
         <span className="ctrl-room-code">
           {isOnline ? `房間：${roomCode}` : '單機模式'}
         </span>
-        <button className="ctrl-settings-btn" onClick={openSettings}>⚙</button>
+        <div className="ctrl-header-right">
+          <button className="ctrl-settings-btn" onClick={openSettings}>
+            <img src={settingsIcon} alt="設定" width="22" height="22" />
+          </button>
+          <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
+        </div>
       </header>
 
       {settingsOpen && settingsForm && (
@@ -127,38 +145,50 @@ const Controller = ({ room }) => {
           <div className="settings-inner" onClick={e => e.stopPropagation()}>
             <h3>設定隊伍</h3>
             {['host', 'guest'].map(team => (
-              <div key={team} className="settings-row">
-                <label>{team === 'host' ? '主隊' : '客隊'}</label>
-                <input
-                  type="text"
-                  value={settingsForm[`${team}Name`]}
-                  placeholder={team === 'host' ? '主隊' : '客隊'}
-                  onChange={e => setSettingsForm(f => ({ ...f, [`${team}Name`]: e.target.value }))}
-                />
-                <input
-                  type="color"
-                  value={settingsForm[`${team}Color`]}
-                  onChange={e => setSettingsForm(f => ({ ...f, [`${team}Color`]: e.target.value }))}
-                />
+              <div key={team}>
+                <div className="settings-row">
+                  <label>{team === 'host' ? '主隊' : '客隊'}</label>
+                  <input
+                    type="text"
+                    value={settingsForm[`${team}Name`]}
+                    placeholder={team === 'host' ? '主隊' : '客隊'}
+                    onChange={e => setSettingsForm(f => ({ ...f, [`${team}Name`]: e.target.value }))}
+                  />
+                  <input
+                    type="color"
+                    value={settingsForm[`${team}Color`]}
+                    onChange={e => setSettingsForm(f => ({ ...f, [`${team}Color`]: e.target.value }))}
+                  />
+                </div>
+                <div className="color-swatches">
+                  {PRESET_COLORS.map(c => (
+                    <button
+                      key={c}
+                      type="button"
+                      className={`color-swatch${settingsForm[`${team}Color`] === c ? ' active' : ''}`}
+                      style={{ backgroundColor: c }}
+                      onClick={() => setSettingsForm(f => ({ ...f, [`${team}Color`]: c }))}
+                    />
+                  ))}
+                </div>
               </div>
             ))}
-            {records.length > 0 && (
-              <div className="settings-records">
-                <h4>局數紀錄</h4>
-                {records.map((r, i) => (
-                  <div key={i} className="settings-record-row">
-                    <span>Set {i + 1}: {r.host} : {r.guest}</span>
-                    <button className="btn delRecord" onClick={() => handleDeleteRecord(i)}>✕</button>
-                  </div>
-                ))}
-              </div>
-            )}
             <div className="settings-actions">
               <button className="btn settings-apply" onClick={applySettings}>套用</button>
               <button className="btn settings-cancel" onClick={() => setSettingsOpen(false)}>取消</button>
             </div>
           </div>
         </div>
+      )}
+
+      {leaveConfirm && (
+        <ConfirmModal
+          message={isOnline ? '確定離開房間？' : '確定返回首頁？'}
+          confirmLabel="離開"
+          cancelLabel="取消"
+          onConfirm={onLeave}
+          onCancel={() => setLeaveConfirm(false)}
+        />
       )}
 
       {resetConfirm && (
@@ -197,9 +227,37 @@ const Controller = ({ room }) => {
         ))}
       </div>
 
-      <footer className="ctrl-footer">
+      <button
+        className={`ctrl-fab${footerOpen ? ' open' : ''}`}
+        onClick={() => { setFooterOpen(o => { if (o) setRecordsOpen(false); return !o }); }}
+        aria-label={footerOpen ? '收合操作列' : '展開操作列'}
+      >
+        {footerOpen ? '✕' : '‹'}
+      </button>
+
+      {footerOpen && recordsOpen && (
+        <div className="ctrl-records-panel">
+          {records.length === 0
+            ? <p className="ctrl-records-empty">尚無紀錄</p>
+            : records.map((r, i) => (
+              <div key={i} className="ctrl-record-row">
+                <span>Set {i + 1}: {r.host} : {r.guest}</span>
+                <button className="btn delRecord" onClick={() => handleDeleteRecord(i)}>✕</button>
+              </div>
+            ))
+          }
+        </div>
+      )}
+
+      <footer className={`ctrl-footer${footerOpen ? ' open' : ''}`}>
         <button className="btn ctrl-btn" onClick={handleSave}>儲存紀錄</button>
-        <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => setResetConfirm(true)}>⚠ 重設比數</button>
+        <button
+          className={`btn ctrl-btn ctrl-btn--records${recordsOpen ? ' active' : ''}`}
+          onClick={() => setRecordsOpen(o => !o)}
+        >
+          紀錄{records.length > 0 ? ` (${records.length})` : ''} {recordsOpen ? '▼' : '▲'}
+        </button>
+        <button className="btn ctrl-btn ctrl-btn--reset" onClick={() => { setResetConfirm(true); setFooterOpen(false); setRecordsOpen(false) }}>⚠ 重設比數</button>
       </footer>
 
       <Toast visible={toast} message="✓ 隊伍設定已儲存" />
