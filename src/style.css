@@ -413,7 +413,11 @@ input:focus {
 }
 
 .display-mode .score {
-  font-size: clamp(100px, max(30vh, 22vw), 280px);
+  font-size: clamp(100px, max(42vh, 32vw), 400px);
+}
+
+.display-mode .score-card:has(.team-name) .score {
+  font-size: clamp(80px, max(32vh, 24vw), 300px);
 }
 
 .display-mode .team-name {
@@ -838,6 +842,10 @@ input:focus {
 
 .ctrl-team-wrap .score {
   font-size: clamp(80px, max(22vh, 15vw), 180px);
+}
+
+.ctrl-team-wrap .score-card:has(.team-name) .score {
+  font-size: clamp(60px, max(16vh, 11vw), 140px);
 }
 
 .card-toolbar {
