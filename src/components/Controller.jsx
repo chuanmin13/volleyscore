@@ -13,7 +13,7 @@ const INITIAL_OFFLINE_TEAMS = {
   hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd', showTeamNames: false,
 }
 
-const PRESET_COLORS = ['#cd2424', '#244ecd', '#1f8f1f', '#d16a03', '#7b2d8b', '#1a1a1a']
+const PRESET_COLORS = ['#cd2424', '#244ecd', '#1f8f1f', '#e68907', '#7b2d8b', '#1a1a1a']
 
 const Controller = ({ room, onLeave }) => {
   const isOnline = room !== null
