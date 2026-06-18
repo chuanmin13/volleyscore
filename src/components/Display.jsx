@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import ConfirmModal from './ConfirmModal'
 import Icon from './Icon'
+import useLongPress from '../hooks/useLongPress'
 
 const COUNTDOWN_SEC = 5
 const RING_R = 18
@@ -50,15 +51,18 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
 }
 
 const Display = ({ room, onLeave }) => {
-  const { roomCode, roomData, addScore, subScore } = room
+  const { roomCode, roomData, addScore, subScore, resetScore } = room
   const { score, teams, records = [] } = roomData
 
   const [recordsOpen, setRecordsOpen] = useState(false)
   const [leaveConfirm, setLeaveConfirm] = useState(false)
+  const [resetConfirm, setResetConfirm] = useState(false)
   const [showModal, setShowModal] = useState(true)
   const [canScore, setCanScore] = useState(false)
 
   const closeModal = useCallback(() => setShowModal(false), [])
+  const onSubLongPress = useCallback(() => setResetConfirm(true), [])
+  const subLongPress = useLongPress(onSubLongPress)
 
   return (
     <div className="container display-mode">
@@ -96,6 +100,16 @@ const Display = ({ room, onLeave }) => {
         />
       )}
 
+      {resetConfirm && (
+        <ConfirmModal
+          message="確定重設比數？"
+          confirmLabel="重設"
+          cancelLabel="取消"
+          onConfirm={() => { resetScore(); setResetConfirm(false) }}
+          onCancel={() => setResetConfirm(false)}
+        />
+      )}
+
       <div className="scores-wrap">
         {['host', 'guest'].map(team => (
           <div key={team} className={`display-team-wrap${canScore ? ' can-score' : ''}`}>
@@ -112,7 +126,15 @@ const Display = ({ room, onLeave }) => {
             {canScore && (
               <div className="card-toolbar" style={{ backgroundColor: teams[`${team}Color`] }}>
                 <button className="card-toolbar-btn card-toolbar-btn--add" onClick={() => addScore(team)}>+</button>
-                <button className="card-toolbar-btn" onClick={() => subScore(team)}>−</button>
+                <button
+                  className="card-toolbar-btn"
+                  onPointerDown={subLongPress.onPointerDown}
+                  onPointerUp={subLongPress.onPointerUp}
+                  onPointerLeave={subLongPress.onPointerLeave}
+                  onPointerCancel={subLongPress.onPointerCancel}
+                  onContextMenu={subLongPress.onContextMenu}
+                  onClick={subLongPress.wrapClick(() => subScore(team))}
+                >−</button>
               </div>
             )}
           </div>
