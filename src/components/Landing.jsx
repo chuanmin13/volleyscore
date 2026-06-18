@@ -93,7 +93,6 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
 
       <div className="landing-body">
         <div className="landing-group">
-          <p className="landing-group-hint">一台顯示比分，另一台遠端控制</p>
           <div className="landing-actions">
             <button
               className="btn landing-btn landing-btn--display"
@@ -101,14 +100,12 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
               disabled={creating}
             >
               {creating ? '建立中…' : '建立房間'}
-              <span className="landing-btn-sub">顯示端</span>
             </button>
             <button
               className="btn landing-btn landing-btn--controller"
               onClick={() => setView('join')}
             >
               加入房間
-              <span className="landing-btn-sub">控制端</span>
             </button>
           </div>
         </div>
@@ -116,7 +113,6 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
         <div className="landing-or">/</div>
 
         <div className="landing-group">
-          <p className="landing-group-hint"></p>
           <button
             className="btn landing-btn landing-btn--offline"
             onClick={onOffline}
@@ -127,6 +123,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
       </div>
 
       <PwaBanner />
+      <span className="landing-credit">© CM</span>
     </div>
   )
 }

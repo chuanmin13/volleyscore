@@ -196,8 +196,10 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
             aria-label="計分模式"
           >
             <span className="score-switch-track">
-              <span className="score-switch-thumb" />
-              <span className="score-switch-label">{canScore ? '純顯示' : '計分中'}</span>
+              <span className="score-switch-thumb">
+                <Icon name={canScore ? 'pencil' : 'eye'} size={12} />
+              </span>
+              <span className="score-switch-label">{canScore ? '計分中' : '純顯示'}</span>
             </span>
           </button>
           <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開">
