@@ -47,8 +47,8 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
           <img
             src={qrCode}
             alt="link_qrcode"
-            width={70}
-            height={70}
+            width={90}
+            height={90}
           />
         </div>
       </div>
