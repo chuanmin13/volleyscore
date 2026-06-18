@@ -959,6 +959,8 @@ Icon 元件預設 `fill="none" stroke="currentColor"`。fill-based icon（如 `p
 | Display 局數紀錄展開後遮住 card-toolbar | `.records-drawer` 為 `position: absolute; bottom: 0`，疊在 scores-wrap 上 | 改為 `position: relative`（normal flow），scores-wrap flex:1 自動縮短讓出空間 |
 | 快速開始頁標題顯示「單機模式」 | Controller.jsx 寫死字串 '單機模式' | 改為 '快速開始' |
 | Landscape Landing 標題太小 | `clamp(1.4rem, 4vh, 2.5rem)` 在 landscape 的 vh 極小 | 改為 `clamp(1.8rem, 5vw, 2.5rem)`，以 vw 為 preferred value |
+| iPad landscape 比分數字偏小 | Display `.score` 上限 280px，iPad landscape 實際只有 230px | 改為 `clamp(100px, max(42vh, 32vw), 400px)`；有隊伍名稱時縮為 `clamp(80px, max(32vh, 24vw), 300px)`（CSS `:has(.team-name)`） |
+| 顯示隊伍名稱時數字未縮小 | font-size 固定，未考慮隊名佔用空間 | Display 與 Controller 各加 `.score-card:has(.team-name) .score` 覆蓋規則 |
 
 ### UX 決策紀錄（2026-06-18 第二批）
 
