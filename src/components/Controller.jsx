@@ -32,7 +32,7 @@ const Controller = ({ room, onLeave }) => {
   const [resetConfirm, setResetConfirm] = useState(false)
   const [recordsFull, setRecordsFull] = useState(false)
   const [leaveConfirm, setLeaveConfirm] = useState(false)
-  const [footerOpen, setFooterOpen] = useState(true)
+  const [footerOpen, setFooterOpen] = useState(false)
   const [recordsOpen, setRecordsOpen] = useState(false)
   const [toast, setToast] = useState(false)
 
@@ -140,7 +140,7 @@ const Controller = ({ room, onLeave }) => {
 
   return (
     <div className="container controller">
-      <header className="ctrl-header">
+      <header className="page-header">
         <span className="ctrl-room-code">
           {isOnline ? `房間：${roomCode}` : '快速開始'}
         </span>
