@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import ConfirmModal from './ConfirmModal'
 import Toast from './Toast'
 import Icon from './Icon'
 import settingsIcon from '../assets/settings.svg'
+import useLongPress from '../hooks/useLongPress'
 
 const INITIAL_OFFLINE_SCORE = () => {
   const saved = sessionStorage.getItem('nowScore')
@@ -130,6 +131,13 @@ const Controller = ({ room, onLeave }) => {
     setTimeout(() => setToast(false), 1500)
   }
 
+  const onSubLongPress = useCallback(() => {
+    setResetConfirm(true)
+    setFooterOpen(false)
+    setRecordsOpen(false)
+  }, [])
+  const subLongPress = useLongPress(onSubLongPress)
+
   return (
     <div className="container controller">
       <header className="ctrl-header">
@@ -240,7 +248,15 @@ const Controller = ({ room, onLeave }) => {
             </div>
             <div className="card-toolbar" style={{ backgroundColor: teams[`${team}Color`] }}>
               <button className="card-toolbar-btn card-toolbar-btn--add" onClick={() => handleAdd(team)}>+</button>
-              <button className="card-toolbar-btn" onClick={() => handleSub(team)}>−</button>
+              <button
+                className="card-toolbar-btn"
+                onPointerDown={subLongPress.onPointerDown}
+                onPointerUp={subLongPress.onPointerUp}
+                onPointerLeave={subLongPress.onPointerLeave}
+                onPointerCancel={subLongPress.onPointerCancel}
+                onContextMenu={subLongPress.onContextMenu}
+                onClick={subLongPress.wrapClick(() => handleSub(team))}
+              >−</button>
             </div>
           </div>
         ))}
