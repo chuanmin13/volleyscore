@@ -962,6 +962,13 @@ Icon 元件預設 `fill="none" stroke="currentColor"`。fill-based icon（如 `p
 
 ### UX 決策紀錄（2026-06-18 第二批）
 
+**字體系統（2026-06-18 第三批）：**
+- Landing 標題 `VolleyScore`：**Chakra Petch 700**（運動感、與數字字體同族）
+- 比分數字（`.score`）：**Chakra Petch 700**（與標題一致，強化品牌感）
+- 房間碼 modal + badge、OTP 輸入格：**Roboto Mono**（等寬，字形清晰，適合 code 類顯示）
+- Body / UI 文字（按鈕、標籤、隊名等）：Barlow Condensed（維持原設定）
+- 中文字 fallback：Roboto Mono 不含 CJK，badge「房間碼：」等中文字由瀏覽器 fallback 系統字體，暫時接受，未來可包 `<span>` 分離字體
+
 **Display 頂部 badge 改 overlay（方案 B）：**
 - `.room-badge` 改為 `position: absolute; top: 0; z-index: 25; backdrop-filter: blur(8px); background: rgba(0,0,0,0.12)`
 - 比分卡延伸至全畫面頂部，badge 浮在上方，與 Controller 的 `ctrl-header` 一致
@@ -970,11 +977,13 @@ Icon 元件預設 `fill="none" stroke="currentColor"`。fill-based icon（如 `p
 - tap icon 在 switch ON 狀態下放大至 16px（OFF 的 eye icon 維持 13px）
 
 **RoomCodeModal 倒數關閉按鈕（最終設計）：**
-- 浮動圓形按鈕，`position: absolute; top: -18px; right: -18px`（半凸出 modal 右上角）
-- SVG arc 倒數環：外圈 track（`rgba(255,255,255,0.18)`）+ 進度圈（`rgba(255,255,255,0.8)`），`stroke-dashoffset` 每秒遞減，`transition: 0.9s linear` 平滑消耗
+- 浮動圓形按鈕，`position: absolute; top: -12px; right: -12px`（27% 凸出 modal 右上角）
+- SVG 5 段 arc：外圈 5 段各佔 1/5 圓，`stroke-dasharray` 控制長度與間距（SEG_LEN ≈ 19.6, GAP = 3）
+- active 段：`rgba(255,255,255,0.8)`；inactive 段（已消耗）：`rgba(249,199,132,0.25)` accent 金色
+- `transform="rotate(-90 22 22)"` 從頂部順時針排列，每秒消一段，`transition: stroke 0.3s`
 - 中心 × 圖示（SVG line × 2）
 - modal 改為 `position: relative`，按鈕 `position: absolute` 凸出，不需 overflow: hidden
-- 演進過程：5 圓點 → 圓點包成 button + 提示文字 → 底部分段條 → 最終浮動 arc ring button
+- 演進過程：5 圓點 → 圓點包成 button + 提示文字 → 底部分段條 → 連續 arc → 最終 5 段 arc ring button
 
 **Display scores-wrap 元素對齊 Controller（完成後）：**
 

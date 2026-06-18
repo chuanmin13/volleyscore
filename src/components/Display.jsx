@@ -4,7 +4,9 @@ import Icon from './Icon'
 
 const COUNTDOWN_SEC = 5
 const RING_R = 18
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_R
+const RING_C = 2 * Math.PI * RING_R
+const SEG_GAP = 3
+const SEG_LEN = (RING_C - SEG_GAP * COUNTDOWN_SEC) / COUNTDOWN_SEC
 
 const RoomCodeModal = ({ roomCode, onClose }) => {
   const [countdown, setCountdown] = useState(COUNTDOWN_SEC)
@@ -19,23 +21,23 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
     return () => clearInterval(id)
   }, [onClose])
 
-  const dashOffset = RING_CIRCUMFERENCE * (1 - countdown / COUNTDOWN_SEC)
-
   return (
     <div className="code-modal-overlay" onClick={onClose}>
       <div className="code-modal" onClick={e => e.stopPropagation()}>
         <button className="code-modal-ring-btn" onClick={onClose} aria-label="關閉">
           <svg viewBox="0 0 44 44" width="44" height="44">
-            <circle cx="22" cy="22" r={RING_R} fill="none"
-              stroke="rgba(255,255,255,0.18)" strokeWidth="2.5" />
-            <circle cx="22" cy="22" r={RING_R} fill="none"
-              stroke="rgba(255,255,255,0.8)" strokeWidth="2.5"
-              strokeDasharray={RING_CIRCUMFERENCE}
-              strokeDashoffset={dashOffset}
-              strokeLinecap="round"
-              transform="rotate(-90 22 22)"
-              style={{ transition: 'stroke-dashoffset 0.9s linear' }}
-            />
+            {Array.from({ length: COUNTDOWN_SEC }, (_, i) => (
+              <circle key={i}
+                cx="22" cy="22" r={RING_R} fill="none"
+                stroke={i < countdown ? 'rgba(255,255,255,0.8)' : 'rgba(249,199,132,0.25)'}
+                strokeWidth="2.5"
+                strokeDasharray={`${SEG_LEN} ${RING_C - SEG_LEN}`}
+                strokeDashoffset={-(i * (SEG_LEN + SEG_GAP))}
+                strokeLinecap="round"
+                transform="rotate(-90 22 22)"
+                style={{ transition: 'stroke 0.3s' }}
+              />
+            ))}
             <line x1="16" y1="16" x2="28" y2="28" stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
             <line x1="28" y1="16" x2="16" y2="28" stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
           </svg>
