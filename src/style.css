@@ -111,6 +111,7 @@ input:focus {
 
 .score {
     font-weight: bold;
+    font-family: 'Chakra Petch', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -161,6 +162,8 @@ input:focus {
 .landing-title {
   margin: 0;
   font-size: clamp(3rem, 7vw, 5rem);
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
   color: var(--accent);
   letter-spacing: 4px;
 }
@@ -285,7 +288,7 @@ input:focus {
   border: 3px solid rgba(255, 255, 255, 0.6);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.9);
-  font-family: "Concert One", "Kosugi Maru", sans-serif, cursive;
+  font-family: 'Roboto Mono', monospace;
   text-transform: uppercase;
   transition: border-color 0.2s;
   outline: none;
@@ -438,7 +441,7 @@ input:focus {
 .room-badge-code {
   letter-spacing: 4px;
   font-size: 1rem;
-  font-family: inherit;
+  font-family: 'Roboto Mono', monospace;
   font-weight: bold;
   color: var(--text);
   background: none;
@@ -577,6 +580,7 @@ input:focus {
 
 .code-modal-code {
   font-size: clamp(52px, 14vw, 96px);
+  font-family: 'Roboto Mono', monospace;
   font-weight: 700;
   letter-spacing: 12px;
   color: var(--accent);
@@ -586,8 +590,8 @@ input:focus {
 
 .code-modal-ring-btn {
   position: absolute;
-  top: -18px;
-  right: -18px;
+  top: -12px;
+  right: -12px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
