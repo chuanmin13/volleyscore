@@ -3,25 +3,27 @@ import { useState } from 'react'
 import { useRoom } from './hooks/useRoom'
 
 import Landing from './components/Landing'
-import Display from './components/Display'
-import Controller from './components/Controller'
+import ScoreBoard from './components/ScoreBoard'
 
 const App = () => {
-  const [mode, setMode] = useState('landing') // 'landing' | 'display' | 'controller' | 'offline'
+  const [mode, setMode] = useState('landing') // 'landing' | 'scoreboard'
+  const [entry, setEntry] = useState(null) // 'create' | 'join' | 'offline'
 
   const [joinError, setJoinError] = useState('')
   const room = useRoom()
 
   const handleCreateRoom = async () => {
     await room.createRoom()
-    setMode('display')
+    setEntry('create')
+    setMode('scoreboard')
   }
 
   const handleJoinRoom = async (code) => {
     try {
       setJoinError('')
       await room.joinRoom(code)
-      setMode('controller')
+      setEntry('join')
+      setMode('scoreboard')
     } catch (e) {
       setJoinError(e.message)
     }
@@ -31,13 +33,17 @@ const App = () => {
     <Landing
       onCreateRoom={handleCreateRoom}
       onJoinRoom={handleJoinRoom}
-      onOffline={() => setMode('offline')}
+      onOffline={() => { setEntry('offline'); setMode('scoreboard') }}
       joinError={joinError}
       onClearError={() => setJoinError('')}
     />)
-  if (mode === 'display') return <Display room={room} onLeave={() => setMode('landing')} />
-  if (mode === 'controller') return <Controller room={room} onLeave={() => setMode('landing')} />
-  if (mode === 'offline') return <Controller room={null} onLeave={() => setMode('landing')} />
+  if (mode === 'scoreboard') return (
+    <ScoreBoard
+      room={entry === 'offline' ? null : room}
+      entry={entry}
+      onLeave={() => setMode('landing')}
+    />
+  )
 }
 
 export default App

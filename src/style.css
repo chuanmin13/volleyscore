@@ -394,7 +394,7 @@ input:focus {
 /* =========================================
    Display Mode
    ========================================= */
-.display-mode {
+.scoreboard {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -405,7 +405,7 @@ input:focus {
   color: var(--text);
 }
 
-.display-mode .scores-wrap {
+.scoreboard .scores-wrap {
   flex: 1;
   flex-direction: row;
   align-items: stretch;
@@ -413,15 +413,15 @@ input:focus {
   padding-top: 44px;
 }
 
-.display-mode .score {
+.scoreboard .score {
   font-size: clamp(100px, max(38vh, 28vw), 360px);
 }
 
-.display-mode .score-card:has(.team-name) .score {
+.scoreboard .score-card:has(.team-name) .score {
   font-size: clamp(80px, max(29vh, 21vw), 270px);
 }
 
-.display-mode .team-name {
+.scoreboard .team-name {
   font-size: clamp(20px, 2vh, 40px);
 }
 
@@ -469,8 +469,6 @@ input:focus {
 
 .score-switch {
   position: relative;
-  width: 52px;
-  height: 26px;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -478,54 +476,54 @@ input:focus {
   flex-shrink: 0;
 }
 
-/* 細軌道：比 thumb 矮，thumb 突出上下 */
-.score-switch::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 14px;
-  transform: translateY(-50%);
-  border-radius: 7px;
+.score-switch-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 80px;
+  height: 26px;
+  border-radius: 13px;
   background: rgba(0, 0, 0, 0.45);
   transition: background 0.3s;
+  overflow: hidden;
 }
 
-.score-switch.on::before {
+.score-switch.on .score-switch-track {
   background: var(--accent);
 }
 
 .score-switch-thumb {
   position: absolute;
-  top: 1px;
-  left: 1px;
-  width: 24px;
-  height: 24px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(0, 0, 0, 0.45);
-  pointer-events: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
   z-index: 1;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
-  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s, box-shadow 0.3s;
-}
-
-.score-switch:hover .score-switch-thumb {
-  box-shadow: 0 0 0 8px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.4);
 }
 
 .score-switch.on .score-switch-thumb {
-  left: 27px;
-  color: var(--accent-fg);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+  left: calc(100% - 24px);
 }
 
-.score-switch.on:hover .score-switch-thumb {
-  box-shadow: 0 0 0 8px rgba(249,199,132,0.15), 0 2px 6px rgba(0,0,0,0.35);
+.score-switch-label {
+  position: absolute;
+  font-size: 0.65rem;
+  font-family: "Barlow Condensed", "Concert One", "Kosugi Maru", sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  white-space: nowrap;
+  right: 6px;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1), left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.score-switch.on .score-switch-label {
+  right: auto;
+  left: 6px;
+  color: var(--accent-fg);
 }
 
 .leave-btn {
@@ -1135,7 +1133,7 @@ input:focus {
    Portrait RWD fallback
    ========================================= */
 @media (orientation: portrait) {
-  .display-mode .scores-wrap {
+  .scoreboard .scores-wrap {
     flex-direction: column;
   }
 
