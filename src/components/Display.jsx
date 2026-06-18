@@ -3,11 +3,8 @@ import ConfirmModal from './ConfirmModal'
 import Icon from './Icon'
 
 const COUNTDOWN_SEC = 5
-const DOT_R = 14
-const DOT_POSITIONS = Array.from({ length: COUNTDOWN_SEC }, (_, i) => {
-  const angle = (-90 + (360 / COUNTDOWN_SEC) * i) * (Math.PI / 180)
-  return { x: 18 + DOT_R * Math.cos(angle), y: 18 + DOT_R * Math.sin(angle) }
-})
+const RING_R = 18
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_R
 
 const RoomCodeModal = ({ roomCode, onClose }) => {
   const [countdown, setCountdown] = useState(COUNTDOWN_SEC)
@@ -22,29 +19,29 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
     return () => clearInterval(id)
   }, [onClose])
 
+  const dashOffset = RING_CIRCUMFERENCE * (1 - countdown / COUNTDOWN_SEC)
+
   return (
     <div className="code-modal-overlay" onClick={onClose}>
       <div className="code-modal" onClick={e => e.stopPropagation()}>
+        <button className="code-modal-ring-btn" onClick={onClose} aria-label="關閉">
+          <svg viewBox="0 0 44 44" width="44" height="44">
+            <circle cx="22" cy="22" r={RING_R} fill="none"
+              stroke="rgba(255,255,255,0.18)" strokeWidth="2.5" />
+            <circle cx="22" cy="22" r={RING_R} fill="none"
+              stroke="rgba(255,255,255,0.8)" strokeWidth="2.5"
+              strokeDasharray={RING_CIRCUMFERENCE}
+              strokeDashoffset={dashOffset}
+              strokeLinecap="round"
+              transform="rotate(-90 22 22)"
+              style={{ transition: 'stroke-dashoffset 0.9s linear' }}
+            />
+            <line x1="16" y1="16" x2="28" y2="28" stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
+            <line x1="28" y1="16" x2="16" y2="28" stroke="rgba(255,255,255,0.85)" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
         <p className="code-modal-label">房間碼</p>
         <div className="code-modal-code">{roomCode}</div>
-        <svg viewBox="0 0 36 36" width="56" height="56">
-          {DOT_POSITIONS.map((pos, i) => (
-            <circle
-              key={i}
-              cx={pos.x} cy={pos.y} r={3}
-              fill={i < countdown ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
-            />
-          ))}
-          <text
-            x="18" y="18"
-            textAnchor="middle" dominantBaseline="central"
-            fontSize="10" fontWeight="600" fill="rgba(255,255,255,0.65)"
-            fontFamily="Barlow Condensed, sans-serif"
-          >
-            {countdown}
-          </text>
-        </svg>
-        <button className="btn code-modal-close" onClick={onClose}>關閉</button>
       </div>
     </div>
   )
@@ -78,7 +75,7 @@ const Display = ({ room, onLeave }) => {
             aria-label="計分模式"
           >
             <span className="score-switch-thumb">
-              <Icon name={canScore ? 'tap' : 'eye'} size={13} />
+              <Icon name={canScore ? 'tap' : 'eye'} size={canScore ? 16 : 13} />
             </span>
           </button>
           <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開房間">
