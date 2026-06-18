@@ -125,7 +125,7 @@ const RoomCodeInput = ({ onComplete, error, disabled }) => {
   )
 }
 
-const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
+const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError }) => {
   const [view, setView] = useState('main') // 'main' | 'join'
   const [creating, setCreating] = useState(false)
   const [joining, setJoining] = useState(false)
@@ -154,7 +154,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
           {joining && <p className="join-label">加入中…</p>}
           <button
             className="btn landing-btn landing-btn--back"
-            onClick={() => setView('main')}
+            onClick={() => { onClearError(); setView('main') }}
             disabled={joining}
           >
             返回

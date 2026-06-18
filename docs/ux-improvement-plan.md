@@ -847,35 +847,52 @@ const DOT_POSITIONS = Array.from({ length: 5 }, (_, i) => {
 - `.code-modal-code`：`clamp(52px, 14vw, 96px)`，金色
 - `.room-badge-code`：hover opacity 效果，pointer cursor
 
+**倒數圓點顏色（與房間碼區隔）：**
+- 亮點：`rgba(255,255,255,0.85)`（白色，非 accent 金色）
+- 暗點：`rgba(255,255,255,0.2)`
+- 數字：`rgba(255,255,255,0.6)`
+- SVG 大小：56×56px（從 80 縮小）
+
 ---
 
 #### 4. Display 計分模式 Toggle
 
 **行為：**
-- 右上角眼睛/鉛筆 icon 切換純檢視 / 計分模式
+- 右上角 Switch 切換純檢視 / 計分模式
 - 計分模式啟用時：
   - 分數卡點擊 = 加分
-  - 底部出現 `+` / `−` card-toolbar（複用 Controller 同款 CSS）
-  - Toggle 按鈕高亮（accent 色背景）
+  - 底部出現 `+` / `−` card-toolbar（半透明黑底，非隊伍色）
+  - Thumb 滑到右側，軌道變暖黃
 - 純檢視模式（預設）：分數卡不可點擊，無 card-toolbar
 
-**Toggle 元件：自製 Switch（仿 MUI Switch 質感）**
+**Toggle 元件：自製 Switch（精確對齊 MUI Switch）**
 
-不引入 antd / MUI（各約 +300KB gzip），純 CSS + React 實作相同視覺效果：
+不引入 antd / MUI（各約 +300KB gzip），純 CSS + React 實作：
 
-- **OFF（純看）**：thumb 在左，軌道 `rgba(0,0,0,0.38)`（MUI 預設灰），眼睛 icon 灰色
-- **ON（計分）**：thumb 滑到右，軌道 `var(--accent)` 暖黃，鉛筆 icon 深藍（`var(--accent-fg)`）
-- Thumb：24px，雙層 `box-shadow` 製造 MUI 立體感
-- Thumb 滑動：`0.3s cubic-bezier(0.4, 0, 0.2, 1)`（MUI 預設 easing）
-- Hover：軌道顏色加深（OFF 更深灰 / ON 稍暗黃）
-- ARIA：`role="switch" aria-checked={canScore}`
+**結構：**
+```
+button.score-switch (52×26px, transparent)
+  ::before  →  細軌道 (14px 高，上下各留 6px)
+  span.score-switch-thumb  →  白色圓圈 (24px，突出軌道 5px)
+    Icon (15px)
+```
+
+**CSS 設計：**
+- 軌道用 `::before` 偽元素製作，高度 14px，button 高度 26px → thumb（24px）突出軌道上下各 5px
+- OFF 軌道：`rgba(0,0,0,0.45)`
+- ON 軌道：`rgba(249,199,132,0.55)`（accent 半透明）
+- Hover：thumb 周圍 8px 光暈（ripple 簡化版）
+- ON Hover：光暈用 accent 色調 `rgba(249,199,132,0.15)`
 
 | 細節 | MUI 原版 | 本專案實作 |
 |------|---------|----------|
-| 軌道尺寸 | 58×32px | 58×32px ✓ |
-| Thumb 尺寸 | 24px | 24px ✓ |
-| Thumb 陰影 | 雙層 box-shadow | 雙層 box-shadow ✓ |
-| Transition | 0.3s ease | 0.3s cubic-bezier ✓ |
+| 容器尺寸 | 58×38px | 52×26px |
+| 軌道高度 | 14px（細） | 14px ✓ |
+| Thumb 尺寸 | 20px | 24px（更大，放 icon） |
+| Thumb 突出 | ✓ | ✓ |
+| Thumb 陰影 | 雙層 | 雙層 ✓ |
+| Hover 光暈 | ripple | 8px ring ✓ |
+| Transition | 0.3s | 0.3s cubic-bezier ✓ |
 | Bundle 增加 | ~300KB | 0KB ✓ |
 
 ```jsx
@@ -883,15 +900,19 @@ const DOT_POSITIONS = Array.from({ length: 5 }, (_, i) => {
         role="switch" aria-checked={canScore} aria-label="計分模式"
         onClick={() => setCanScore(v => !v)}>
   <span className="score-switch-thumb">
-    <Icon name={canScore ? 'pencil' : 'eye'} size={13} />
+    <Icon name={canScore ? 'pointer' : 'eye'} size={15} />
   </span>
 </button>
 ```
 
 **Icon：**
-- 眼睛（pure view）：`eye` path
-- 鉛筆（scoring）：`pencil` path
+- 眼睛（pure view）：`eye` stroke path
+- 手指點擊（scoring）：`pointer` fill-based path（外部 SVG，`fill="currentColor" stroke="none"`）
 - 新增至 `Icon.jsx` `paths` 物件
+
+**Display card-toolbar（計分模式）：**
+- 沿用隊伍色（inline `style={{ backgroundColor: teamColor }}`），與 Controller 一致
+- `can-score` class 動態切換 score-card 圓角為 `16px 16px 0 0`，使卡片與 toolbar 無縫銜接
 
 #### Icon.jsx 管理的 icons（截至 2026-06-18）
 
@@ -912,13 +933,37 @@ Icon 元件預設 `fill="none" stroke="currentColor"`。fill-based icon（如 `p
 
 **新增 CSS：**
 ```css
-.display-toggle-btn { /* 40×40px，透明背景，opacity 0.6 */ }
-.display-toggle-btn.active { /* accent 色背景，opacity 1 */ }
-.display-team-wrap { flex: 1; flex-direction: column; } /* 包裹 score-card + card-toolbar */
-.display-team-wrap .score-card { flex: 1; } /* 撐滿剩餘高度 */
+.display-mode .scores-wrap { align-items: stretch; }
+.display-team-wrap { display: flex; flex-direction: column; flex: 1; align-self: stretch; min-width: 0; }
+.display-team-wrap .score-card { flex: 1; width: 100%; min-height: 0; cursor: default; }
+.display-team-wrap.can-score .score-card { border-radius: 16px 16px 0 0; cursor: pointer; }
 ```
 
 **資料流：** 直接使用 `room.addScore(team)` / `room.subScore(team)`（useRoom 回傳值，已在 Display props 中）
+
+---
+
+### Bug fixes（2026-06-18 補充）
+
+| 問題 | 原因 | 修正 |
+|------|------|------|
+| Display 比分卡不滿版 | base `.scores-wrap` 有 `align-items: center`；`.display-mode .scores-wrap` 未覆蓋 | 加 `align-items: stretch`；`display-team-wrap` 加 `align-self: stretch; min-width: 0` |
+| Display card-toolbar 與 Controller 外觀不一致 | score-card 圓角 Display 全 16px、Controller 上圓下平；toolbar 顏色不同 | `can-score` class 動態切換圓角為 `16px 16px 0 0`；補回 inline `backgroundColor` |
+| 加入房間返回後仍顯示舊錯誤 | `joinError` 在 App.jsx，返回時不清空 | Landing 接收 `onClearError` prop，點返回同時呼叫清空 |
+| Controller/Display 比分區樣式不一致 | Controller 用 `ctrl-scores`（含 `align-items: stretch`），Display 只用 `scores-wrap` | 統一在 `.display-mode .scores-wrap` 加 `align-items: stretch` |
+
+**Display scores-wrap 元素對齊 Controller（完成後）：**
+
+| CSS 屬性 | Controller | Display |
+|---------|-----------|---------|
+| scores-wrap flex-direction | row（portrait: column） | row（portrait: column）✓ |
+| align-items | stretch | stretch ✓ |
+| team-wrap | `ctrl-team-wrap` | `display-team-wrap` |
+| score-card 圓角（有 toolbar） | `16px 16px 0 0` | `16px 16px 0 0`（`.can-score`）✓ |
+| score-card min-height | `min-height: 0` | `min-height: 0` ✓ |
+| card-toolbar background | inline teamColor | inline teamColor ✓ |
+| user-select | none | none（`.can-score`）✓ |
+| 主要差異（刻意保留） | padding 60px 頂部留 header | 無 padding（Display 無 floating header）|
 
 ---
 

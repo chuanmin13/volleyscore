@@ -27,18 +27,18 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
       <div className="code-modal" onClick={e => e.stopPropagation()}>
         <p className="code-modal-label">房間碼</p>
         <div className="code-modal-code">{roomCode}</div>
-        <svg viewBox="0 0 36 36" width="80" height="80">
+        <svg viewBox="0 0 36 36" width="56" height="56">
           {DOT_POSITIONS.map((pos, i) => (
             <circle
               key={i}
               cx={pos.x} cy={pos.y} r={3}
-              fill={i < countdown ? 'var(--accent)' : 'rgba(255,255,255,0.15)'}
+              fill={i < countdown ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)'}
             />
           ))}
           <text
             x="18" y="18"
             textAnchor="middle" dominantBaseline="central"
-            fontSize="11" fontWeight="bold" fill="var(--text)"
+            fontSize="10" fontWeight="600" fill="rgba(255,255,255,0.65)"
             fontFamily="Barlow Condensed, sans-serif"
           >
             {countdown}
@@ -78,7 +78,7 @@ const Display = ({ room, onLeave }) => {
             aria-label="計分模式"
           >
             <span className="score-switch-thumb">
-              <Icon name={canScore ? 'pointer' : 'eye'} size={13} />
+              <Icon name={canScore ? 'tap' : 'eye'} size={13} />
             </span>
           </button>
           <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開房間">
@@ -99,7 +99,7 @@ const Display = ({ room, onLeave }) => {
 
       <div className="scores-wrap">
         {['host', 'guest'].map(team => (
-          <div key={team} className="display-team-wrap">
+          <div key={team} className={`display-team-wrap${canScore ? ' can-score' : ''}`}>
             <div
               className="score-card"
               style={{ backgroundColor: teams[`${team}Color`] }}
