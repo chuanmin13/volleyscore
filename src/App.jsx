@@ -33,6 +33,7 @@ const App = () => {
       onJoinRoom={handleJoinRoom}
       onOffline={() => setMode('offline')}
       joinError={joinError}
+      onClearError={() => setJoinError('')}
     />)
   if (mode === 'display') return <Display room={room} onLeave={() => setMode('landing')} />
   if (mode === 'controller') return <Controller room={room} onLeave={() => setMode('landing')} />
