@@ -134,7 +134,7 @@ const Controller = ({ room, onLeave }) => {
     <div className="container controller">
       <header className="ctrl-header">
         <span className="ctrl-room-code">
-          {isOnline ? `房間：${roomCode}` : '單機模式'}
+          {isOnline ? `房間：${roomCode}` : '快速開始'}
         </span>
         <div className="ctrl-header-right">
           <button className="ctrl-settings-btn" onClick={openSettings}>

@@ -952,6 +952,30 @@ Icon 元件預設 `fill="none" stroke="currentColor"`。fill-based icon（如 `p
 | 加入房間返回後仍顯示舊錯誤 | `joinError` 在 App.jsx，返回時不清空 | Landing 接收 `onClearError` prop，點返回同時呼叫清空 |
 | Controller/Display 比分區樣式不一致 | Controller 用 `ctrl-scores`（含 `align-items: stretch`），Display 只用 `scores-wrap` | 統一在 `.display-mode .scores-wrap` 加 `align-items: stretch` |
 
+### Bug fixes（2026-06-18 第二批）
+
+| 問題 | 原因 | 修正 |
+|------|------|------|
+| Display 局數紀錄展開後遮住 card-toolbar | `.records-drawer` 為 `position: absolute; bottom: 0`，疊在 scores-wrap 上 | 改為 `position: relative`（normal flow），scores-wrap flex:1 自動縮短讓出空間 |
+| 快速開始頁標題顯示「單機模式」 | Controller.jsx 寫死字串 '單機模式' | 改為 '快速開始' |
+| Landscape Landing 標題太小 | `clamp(1.4rem, 4vh, 2.5rem)` 在 landscape 的 vh 極小 | 改為 `clamp(1.8rem, 5vw, 2.5rem)`，以 vw 為 preferred value |
+
+### UX 決策紀錄（2026-06-18 第二批）
+
+**Display 頂部 badge 改 overlay（方案 B）：**
+- `.room-badge` 改為 `position: absolute; top: 0; z-index: 25; backdrop-filter: blur(8px); background: rgba(0,0,0,0.12)`
+- 比分卡延伸至全畫面頂部，badge 浮在上方，與 Controller 的 `ctrl-header` 一致
+- z-index: 25 > records-backdrop (19) + records-drawer (20)，確保 badge 永遠可見
+- Controller `ctrl-header` 也同步調整為 `rgba(0,0,0,0.12)` + `blur(8px)`，兩頁一致
+- tap icon 在 switch ON 狀態下放大至 16px（OFF 的 eye icon 維持 13px）
+
+**RoomCodeModal 倒數關閉按鈕（最終設計）：**
+- 浮動圓形按鈕，`position: absolute; top: -18px; right: -18px`（半凸出 modal 右上角）
+- SVG arc 倒數環：外圈 track（`rgba(255,255,255,0.18)`）+ 進度圈（`rgba(255,255,255,0.8)`），`stroke-dashoffset` 每秒遞減，`transition: 0.9s linear` 平滑消耗
+- 中心 × 圖示（SVG line × 2）
+- modal 改為 `position: relative`，按鈕 `position: absolute` 凸出，不需 overflow: hidden
+- 演進過程：5 圓點 → 圓點包成 button + 提示文字 → 底部分段條 → 最終浮動 arc ring button
+
 **Display scores-wrap 元素對齊 Controller（完成後）：**
 
 | CSS 屬性 | Controller | Display |
