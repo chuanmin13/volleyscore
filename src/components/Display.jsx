@@ -68,7 +68,7 @@ const Display = ({ room, onLeave }) => {
     <div className="container display-mode">
       {showModal && <RoomCodeModal roomCode={roomCode} onClose={closeModal} />}
 
-      <div className="room-badge">
+      <div className="page-header">
         <button className="room-badge-code btn" onClick={() => setShowModal(true)}>
           房間碼：{roomCode}
         </button>
