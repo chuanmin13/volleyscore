@@ -1,26 +1,92 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import ConfirmModal from './ConfirmModal'
 import Icon from './Icon'
 
+const COUNTDOWN_SEC = 5
+const DOT_R = 14
+const DOT_POSITIONS = Array.from({ length: COUNTDOWN_SEC }, (_, i) => {
+  const angle = (-90 + (360 / COUNTDOWN_SEC) * i) * (Math.PI / 180)
+  return { x: 18 + DOT_R * Math.cos(angle), y: 18 + DOT_R * Math.sin(angle) }
+})
+
+const RoomCodeModal = ({ roomCode, onClose }) => {
+  const [countdown, setCountdown] = useState(COUNTDOWN_SEC)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCountdown(c => {
+        if (c <= 1) { clearInterval(id); onClose(); return 0 }
+        return c - 1
+      })
+    }, 1000)
+    return () => clearInterval(id)
+  }, [onClose])
+
+  return (
+    <div className="code-modal-overlay" onClick={onClose}>
+      <div className="code-modal" onClick={e => e.stopPropagation()}>
+        <p className="code-modal-label">房間碼</p>
+        <div className="code-modal-code">{roomCode}</div>
+        <svg viewBox="0 0 36 36" width="80" height="80">
+          {DOT_POSITIONS.map((pos, i) => (
+            <circle
+              key={i}
+              cx={pos.x} cy={pos.y} r={3}
+              fill={i < countdown ? 'var(--accent)' : 'rgba(255,255,255,0.15)'}
+            />
+          ))}
+          <text
+            x="18" y="18"
+            textAnchor="middle" dominantBaseline="central"
+            fontSize="11" fontWeight="bold" fill="var(--text)"
+            fontFamily="Barlow Condensed, sans-serif"
+          >
+            {countdown}
+          </text>
+        </svg>
+        <button className="btn code-modal-close" onClick={onClose}>關閉</button>
+      </div>
+    </div>
+  )
+}
+
 const Display = ({ room, onLeave }) => {
-  const { roomCode, roomData } = room
+  const { roomCode, roomData, addScore, subScore } = room
   const { score, teams, records = [] } = roomData
 
   const [recordsOpen, setRecordsOpen] = useState(false)
   const [leaveConfirm, setLeaveConfirm] = useState(false)
+  const [showModal, setShowModal] = useState(true)
+  const [canScore, setCanScore] = useState(false)
+
+  const closeModal = useCallback(() => setShowModal(false), [])
 
   return (
     <div className="container display-mode">
+      {showModal && <RoomCodeModal roomCode={roomCode} onClose={closeModal} />}
+
       <div className="room-badge">
-        房間碼：{roomCode}
-        <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開房間">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
+        <button className="room-badge-code btn" onClick={() => setShowModal(true)}>
+          房間碼：{roomCode}
         </button>
+        <div className="room-badge-actions">
+          <button
+            className={`score-switch${canScore ? ' on' : ''}`}
+            onClick={() => setCanScore(v => !v)}
+            role="switch"
+            aria-checked={canScore}
+            aria-label="計分模式"
+          >
+            <span className="score-switch-thumb">
+              <Icon name={canScore ? 'pointer' : 'eye'} size={13} />
+            </span>
+          </button>
+          <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開房間">
+            <Icon name="leave" size={22} />
+          </button>
+        </div>
       </div>
+
       {leaveConfirm && (
         <ConfirmModal
           message="確定離開房間？"
@@ -30,25 +96,35 @@ const Display = ({ room, onLeave }) => {
           onCancel={() => setLeaveConfirm(false)}
         />
       )}
+
       <div className="scores-wrap">
-        <div className="score-card" style={{ backgroundColor: teams.hostColor }}>
-          {teams.showTeamNames && <div className="team-name">{teams.hostName}</div>}
-          <div className="score">{score.host}</div>
-        </div>
-        <div className="score-card" style={{ backgroundColor: teams.guestColor }}>
-          {teams.showTeamNames && <div className="team-name">{teams.guestName}</div>}
-          <div className="score">{score.guest}</div>
-        </div>
+        {['host', 'guest'].map(team => (
+          <div key={team} className="display-team-wrap">
+            <div
+              className="score-card"
+              style={{ backgroundColor: teams[`${team}Color`] }}
+              onClick={canScore ? () => addScore(team) : undefined}
+            >
+              {teams.showTeamNames && (
+                <div className="team-name">{teams[`${team}Name`] || (team === 'host' ? '主隊' : '客隊')}</div>
+              )}
+              <div className="score">{score[team]}</div>
+            </div>
+            {canScore && (
+              <div className="card-toolbar" style={{ backgroundColor: teams[`${team}Color`] }}>
+                <button className="card-toolbar-btn card-toolbar-btn--add" onClick={() => addScore(team)}>+</button>
+                <button className="card-toolbar-btn" onClick={() => subScore(team)}>−</button>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       {recordsOpen && (
         <div className="records-backdrop" onClick={() => setRecordsOpen(false)} />
       )}
       <div className="records-drawer">
-        <button
-          className="records-toggle"
-          onClick={() => setRecordsOpen(o => !o)}
-        >
+        <button className="records-toggle" onClick={() => setRecordsOpen(o => !o)}>
           局數紀錄 {recordsOpen ? <Icon name="chevronUp" size={16} /> : <Icon name="chevronDown" size={16} />}
         </button>
         <div className={`records-body ${recordsOpen ? 'open' : ''}`}>

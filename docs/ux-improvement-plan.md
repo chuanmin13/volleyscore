@@ -772,3 +772,188 @@ import Icon from './Icon'
 ```
 
 **風格一致性：** `stroke="currentColor" strokeWidth="2"` 與現有 leave-btn SVG 完全相同。
+
+---
+
+## 第四輪修改（使用者測試回饋，2026-06-18）
+
+> 來源：實機測試後回饋，4 項修改
+
+---
+
+### 修改項目
+
+#### 1. 房間代號改全數字（4 位）
+
+**Before：** 3 個英文字母 + 1 個數字（e.g., `ABC3`），需要混合鍵盤切換
+**After：** 4 位純數字（1000–9999）（e.g., `3847`）
+
+**理由：**
+- 輸入更快，不需要切換鍵盤佈局
+- 語音傳達更自然（「三八四七」比「A B C 三」清楚）
+- 9000 個可能組合對非正式場合已足夠
+
+**改動：**
+- `useRoom.js`：`generateRoomCode` 改為 `String(Math.floor(Math.random() * 9000) + 1000)`
+- `Landing.jsx`：OTP 驗證 regex 改為 `/[^0-9]/g`
+
+---
+
+#### 2. OTP 輸入開啟數字鍵盤
+
+**Before：** `inputMode="text"`（全鍵盤）
+**After：** `inputMode="numeric"`（數字鍵盤）
+
+**改動：** `Landing.jsx` `RoomCodeInput` input 元素加 `inputMode="numeric"`
+
+---
+
+#### 3. Display 進入後顯示房間碼 Modal
+
+**行為：**
+- 進入 Display 頁即自動開啟 Modal
+- Modal 中央顯示大字房間碼（金色，clamp 字型大小）
+- SVG 環形倒數計時器（5 秒），倒數完自動關閉
+- 可手動點「關閉」或點遮罩外部提早關閉
+- 左上角房間碼文字改為可點擊按鈕，隨時重開 Modal
+
+**Layout：**
+```
+┌────────────────────────────┐
+│         房間碼              │  ← label（小字）
+│          3847              │  ← 大字（accent 金色）
+│          ◯ 3               │  ← SVG 環形倒數（accent 色圈）
+│        [ 關閉 ]             │
+└────────────────────────────┘
+```
+
+**圓點倒數設計：**
+- 5 個圓點（r=3）等距排列在環形路徑上（DOT_R=14，viewBox 36×36，center 18,18）
+- 從 12 點鐘方向順時針排列，每隔 72°（360/5）放一個點
+- `i < countdown` 決定亮（`var(--accent)`）或暗（`rgba(255,255,255,0.15)`）
+- 每秒消去最後一個亮點
+- 倒數數字用 SVG `<text>` 置中（`textAnchor="middle" dominantBaseline="central"`）
+
+```js
+const DOT_POSITIONS = Array.from({ length: 5 }, (_, i) => {
+  const angle = (-90 + (360 / 5) * i) * (Math.PI / 180)
+  return { x: 18 + 14 * Math.cos(angle), y: 18 + 14 * Math.sin(angle) }
+})
+```
+
+**新增 CSS：**
+- `.code-modal-overlay`：全螢幕遮罩，z-index: 300
+- `.code-modal`：居中卡片，深色背景
+- `.code-modal-code`：`clamp(52px, 14vw, 96px)`，金色
+- `.room-badge-code`：hover opacity 效果，pointer cursor
+
+---
+
+#### 4. Display 計分模式 Toggle
+
+**行為：**
+- 右上角眼睛/鉛筆 icon 切換純檢視 / 計分模式
+- 計分模式啟用時：
+  - 分數卡點擊 = 加分
+  - 底部出現 `+` / `−` card-toolbar（複用 Controller 同款 CSS）
+  - Toggle 按鈕高亮（accent 色背景）
+- 純檢視模式（預設）：分數卡不可點擊，無 card-toolbar
+
+**Toggle 元件：自製 Switch（仿 MUI Switch 質感）**
+
+不引入 antd / MUI（各約 +300KB gzip），純 CSS + React 實作相同視覺效果：
+
+- **OFF（純看）**：thumb 在左，軌道 `rgba(0,0,0,0.38)`（MUI 預設灰），眼睛 icon 灰色
+- **ON（計分）**：thumb 滑到右，軌道 `var(--accent)` 暖黃，鉛筆 icon 深藍（`var(--accent-fg)`）
+- Thumb：24px，雙層 `box-shadow` 製造 MUI 立體感
+- Thumb 滑動：`0.3s cubic-bezier(0.4, 0, 0.2, 1)`（MUI 預設 easing）
+- Hover：軌道顏色加深（OFF 更深灰 / ON 稍暗黃）
+- ARIA：`role="switch" aria-checked={canScore}`
+
+| 細節 | MUI 原版 | 本專案實作 |
+|------|---------|----------|
+| 軌道尺寸 | 58×32px | 58×32px ✓ |
+| Thumb 尺寸 | 24px | 24px ✓ |
+| Thumb 陰影 | 雙層 box-shadow | 雙層 box-shadow ✓ |
+| Transition | 0.3s ease | 0.3s cubic-bezier ✓ |
+| Bundle 增加 | ~300KB | 0KB ✓ |
+
+```jsx
+<button className={`score-switch${canScore ? ' on' : ''}`}
+        role="switch" aria-checked={canScore} aria-label="計分模式"
+        onClick={() => setCanScore(v => !v)}>
+  <span className="score-switch-thumb">
+    <Icon name={canScore ? 'pencil' : 'eye'} size={13} />
+  </span>
+</button>
+```
+
+**Icon：**
+- 眼睛（pure view）：`eye` path
+- 鉛筆（scoring）：`pencil` path
+- 新增至 `Icon.jsx` `paths` 物件
+
+#### Icon.jsx 管理的 icons（截至 2026-06-18）
+
+| name | 風格 | 用途 |
+|------|------|------|
+| `chevronDown` | stroke | FAB 收合、records toggle |
+| `chevronUp` | stroke | FAB 展開、records toggle |
+| `close` | stroke | 刪除紀錄、PWA banner 關閉 |
+| `eye` | stroke | Display switch OFF（純檢視模式） |
+| `pencil` | stroke | （保留，未使用）|
+| `pointer` | fill | Display switch ON（計分模式）|
+| `leave` | stroke | 離開房間按鈕（Display + Controller 共用） |
+
+**混用 fill / stroke 說明：**
+Icon 元件預設 `fill="none" stroke="currentColor"`。fill-based icon（如 `pointer`）在 path 上直接加 `fill="currentColor" stroke="none"` 覆蓋父層設定，顏色仍跟 CSS `color` 走，兩種風格可共存。
+
+`pointer` icon 來源：手繪風指尖手型 SVG（fill-based），描繪多指展開、食指向上的手勢，語意為「可觸碰/點擊以互動」。
+
+**新增 CSS：**
+```css
+.display-toggle-btn { /* 40×40px，透明背景，opacity 0.6 */ }
+.display-toggle-btn.active { /* accent 色背景，opacity 1 */ }
+.display-team-wrap { flex: 1; flex-direction: column; } /* 包裹 score-card + card-toolbar */
+.display-team-wrap .score-card { flex: 1; } /* 撐滿剩餘高度 */
+```
+
+**資料流：** 直接使用 `room.addScore(team)` / `room.subScore(team)`（useRoom 回傳值，已在 Display props 中）
+
+---
+
+### React `useCallback` 使用原則（筆記）
+
+**場景：** `RoomCodeModal` 接收 `onClose` prop，其 `useEffect` 依賴 `onClose`
+
+```jsx
+// Display 元件
+const closeModal = useCallback(() => setShowModal(false), [])
+
+// 傳入子元件
+<RoomCodeModal onClose={closeModal} />
+
+// RoomCodeModal 內部
+useEffect(() => {
+  const id = setInterval(...)
+  return () => clearInterval(id)
+}, [onClose])   // ← 依賴 onClose 參考
+```
+
+**問題根源：** 每次 Display re-render，`() => setShowModal(false)` 都是全新 function 物件（即使邏輯相同）。新參考 → useEffect deps 改變 → interval 重設 → 倒數歸零無限循環。
+
+**`useCallback` 的作用：** 回傳同一個 function 物件，deps `[]` 代表永不重建。
+
+```
+沒有 useCallback：
+  render 1 → f1 = () => ...  (new object)
+  render 2 → f2 = () => ...  (new object)
+  f1 === f2  // false → effect 重跑
+
+useCallback(fn, [])：
+  render 1 → f (memoized)
+  render 2 → f (same object)
+  f === f    // true → effect 不重跑
+```
+
+**何時需要：** function 被當作 `useEffect` deps、`React.memo` 子元件的 props、或其他 memoization 比較時。平時不需要對所有 function 都加 `useCallback`。

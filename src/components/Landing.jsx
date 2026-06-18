@@ -60,7 +60,7 @@ const RoomCodeInput = ({ onComplete, error, disabled }) => {
 
 
   const handleChange = (i, raw) => {
-    const val = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(-1)
+    const val = raw.replace(/[^0-9]/g, '').slice(-1)
     if (!val) return
 
     const next = [...digits]
@@ -92,7 +92,7 @@ const RoomCodeInput = ({ onComplete, error, disabled }) => {
   const handlePaste = (e) => {
     e.preventDefault()
     const pasted = e.clipboardData.getData('text')
-      .toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, OTP_LENGTH)
+      .replace(/[^0-9]/g, '').slice(0, OTP_LENGTH)
     const next = Array(OTP_LENGTH).fill('')
     pasted.split('').forEach((c, i) => { next[i] = c })
     setDigits(next)
@@ -109,7 +109,7 @@ const RoomCodeInput = ({ onComplete, error, disabled }) => {
           ref={el => { refs.current[i] = el }}
           className={`otp-box${error ? ' otp-box--error' : ''}`}
           type="text"
-          inputMode="text"
+          inputMode="numeric"
           maxLength={2}
           value={d}
           autoFocus={i === 0}
@@ -171,7 +171,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
       <h1 className="landing-title">VolleyScore</h1>
 
       <div className="landing-body">
-        <div className="landing-remote-group">
+        <div className="landing-group">
           <p className="landing-group-hint">一台顯示比分，另一台遠端控制</p>
           <div className="landing-actions">
             <button
@@ -194,12 +194,15 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError }) => {
 
         <div className="landing-or">/</div>
 
-        <button
-          className="btn landing-btn landing-btn--offline"
-          onClick={onOffline}
-        >
-          快速開始
-        </button>
+        <div className="landing-group">
+          <p className="landing-group-hint"></p>
+          <button
+            className="btn landing-btn landing-btn--offline"
+            onClick={onOffline}
+          >
+            快速開始
+          </button>
+        </div>
       </div>
 
       <PwaBanner />
