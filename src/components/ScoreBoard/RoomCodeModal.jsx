@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import qrCode from '../../assets/link_qrcode.svg'
 
 const COUNTDOWN_SEC = 5
 const RING_R = 18
@@ -7,17 +7,17 @@ const SEG_GAP = 3
 const SEG_LEN = (RING_C - SEG_GAP * COUNTDOWN_SEC) / COUNTDOWN_SEC
 
 const RoomCodeModal = ({ roomCode, onClose }) => {
-  const [countdown, setCountdown] = useState(COUNTDOWN_SEC)
+  // const [countdown, setCountdown] = useState(COUNTDOWN_SEC)
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      setCountdown(c => {
-        if (c <= 1) { clearInterval(id); onClose(); return 0 }
-        return c - 1
-      })
-    }, 1000)
-    return () => clearInterval(id)
-  }, [onClose])
+  // useEffect(() => {
+  //   const id = setInterval(() => {
+  //     setCountdown(c => {
+  //       if (c <= 1) { clearInterval(id); onClose(); return 0 }
+  //       return c - 1
+  //     })
+  //   }, 1000)
+  //   return () => clearInterval(id)
+  // }, [onClose])
 
   return (
     <div className="code-modal-overlay" onClick={onClose}>
@@ -27,7 +27,8 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
             {Array.from({ length: COUNTDOWN_SEC }, (_, i) => (
               <circle key={i}
                 cx="22" cy="22" r={RING_R} fill="none"
-                stroke={i < countdown ? 'rgba(255,255,255,0.8)' : 'rgba(249,199,132,0.25)'}
+                // stroke={i < countdown ? 'rgba(255,255,255,0.8)' : 'rgba(249,199,132,0.25)'}
+                stroke='rgba(249,199,132,0.25)'
                 strokeWidth="2.5"
                 strokeDasharray={`${SEG_LEN} ${RING_C - SEG_LEN}`}
                 strokeDashoffset={-(i * (SEG_LEN + SEG_GAP))}
@@ -42,6 +43,14 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
         </button>
         <p className="code-modal-label">房間碼</p>
         <div className="code-modal-code">{roomCode}</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img
+            src={qrCode}
+            alt="link_qrcode"
+            width={70}
+            height={70}
+          />
+        </div>
       </div>
     </div>
   )
