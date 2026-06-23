@@ -21,9 +21,9 @@ const paths = {
     <rect x="17" y="17" width="2" height="4"        {...F} />
   </>,
   'more-vertical': <>
-    <circle cx="12" cy="5"  r="2.5" {...F} />
-    <circle cx="12" cy="12" r="2.5" {...F} />
-    <circle cx="12" cy="19" r="2.5" {...F} />
+    <line x1="3" y1="6"  x2="21" y2="6"  {...S} />
+    <line x1="3" y1="12" x2="21" y2="12" {...S} />
+    <line x1="3" y1="18" x2="21" y2="18" {...S} />
   </>,
 }
 

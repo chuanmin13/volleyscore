@@ -49,7 +49,10 @@ body {
     touch-action: manipulation;
     overflow: hidden;
     overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
 }
+
+button:focus:not(:focus-visible) { outline: none; }
 
 #root {
     height: 100%;
@@ -290,6 +293,7 @@ input:focus {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.9);
   font-family: 'Roboto Mono', monospace;
+  font-weight: 700;
   text-transform: uppercase;
   transition: border-color 0.2s;
   outline: none;
@@ -342,13 +346,6 @@ input:focus {
   }
 }
 
-/* Portrait fallback：按鈕改縱向 */
-@media (orientation: portrait) {
-  .landing-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-}
 
 @media (orientation: landscape) {
   .landing {
