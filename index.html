@@ -20,10 +20,19 @@
     <link rel="shortcut icon" href="/scoreCalc-icon.svg" type="image/x-icon" />
     <link rel="apple-touch-icon" sizes="128x128" href="/scoreCalc.png" />
 
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#485696" />
+    <style>
+      html, body { margin: 0; background: linear-gradient(to bottom, #485696 0%, #2e3a6e 55%, #1a2347 100%); height: 100%; }
+      #root { height: 100%; }
+      #splash { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+      #splash h1 { margin: 0; font-family: 'Chakra Petch', 'Barlow Condensed', sans-serif; font-size: clamp(3rem, 7vw, 5rem); font-weight: 700; color: #f9c784; letter-spacing: 4px; }
+      #splash-credit { position: absolute; bottom: max(8px, env(safe-area-inset-bottom)); font-size: 0.6rem; opacity: 0.3; color: #e7e7e7; letter-spacing: 1px; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="splash"><h1>VolleyScore</h1><span id="splash-credit">© CM</span></div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

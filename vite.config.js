@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/volleyscore/',
+  base: '/',
   plugins: [
     react(),
     VitePWA({
@@ -12,7 +12,7 @@ export default defineConfig({
         name: 'VolleyScore',
         short_name: 'VolleyScore',
         description: 'VolleyScore 是支援遠端遙控的排球記分板，可用平板顯示比分、手機遠端操控。',
-        start_url: '/volleyscore/',
+        start_url: '/',
         display: 'standalone',
         theme_color: '#ea5455',
         background_color: '#ffffff',

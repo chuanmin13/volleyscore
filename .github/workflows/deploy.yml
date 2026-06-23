@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy Redirect to GitHub Pages
 
 on:
   push:
@@ -14,26 +14,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: 產生 redirect 頁面
+        run: |
+          mkdir _site
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="zh-TW">
+          <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="refresh" content="0; url=https://volleyscore.ctheworldx.com">
+            <title>VolleyScore — 已遷移</title>
+          </head>
+          <body style="margin:0;height:100%;background:linear-gradient(to bottom,#485696 0%,#2e3a6e 55%,#1a2347 100%);">
+            <script>window.location.replace("https://volleyscore.ctheworldx.com");</script>
+            <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;">
+              <h1 style="margin:0;font-family:'Chakra Petch',sans-serif;font-size:clamp(3rem,7vw,5rem);font-weight:700;color:#f9c784;letter-spacing:4px;">VolleyScore</h1>
+              <p style="margin:8px 0 0;color:#e7e7e7;font-family:sans-serif;">正在跳轉至新網址… <a href="https://volleyscore.ctheworldx.com" style="color:#f9c784;">點此前往</a></p>
+              <span style="position:absolute;bottom:8px;font-size:0.6rem;opacity:0.3;color:#e7e7e7;letter-spacing:1px;">© CM</span>
+            </div>
+          </body>
+          </html>
+          EOF
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
