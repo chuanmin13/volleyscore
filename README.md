@@ -2,6 +2,10 @@
 
 A PWA scoreboard for volleyball games — display scores on a tablet, control remotely from your phone.
 
+**Live:** https://volleyscore.ctheworldx.com
+
+> GitHub Pages (`chuanmin13.github.io/volleyscore`) redirects to the above URL.
+
 ---
 
 ## Features
@@ -34,9 +38,10 @@ A PWA scoreboard for volleyball games — display scores on a tablet, control re
 
 ## Tech
 
-- **React + Vite** — component-based UI, fast build
+- **React 19 + Vite** — component-based UI, fast build
 - **Firebase Realtime Database** — cross-device real-time sync
 - **vite-plugin-pwa** — Service Worker & PWA manifest generation
+- **Vercel** — production hosting with custom domain
 - **Vanilla CSS** — no CSS framework
 
 ---
@@ -51,3 +56,14 @@ A PWA scoreboard for volleyball games — display scores on a tablet, control re
 
 ### Quick start (offline)
 Open the app → **快速開始** — works without internet, score persists on page refresh.
+
+---
+
+## Development
+
+```bash
+npm install
+npm run dev      # dev server
+npm run build    # production build
+npm run preview  # preview build locally
+```
