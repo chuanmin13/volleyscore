@@ -16,6 +16,19 @@
   --warm:        #fc7a1e;
   --border:      rgba(231, 231, 231, 0.2);
   --border-mid:  rgba(231, 231, 231, 0.4);
+
+  /* Type scale */
+  --text-xs:   0.72rem;
+  --text-sm:   0.85rem;
+  --text-base: 1rem;
+  --text-lg:   1.1rem;
+  --text-xl:   1.3rem;
+  --text-hero: clamp(3rem, 7vw, 5rem);
+  --text-code: clamp(52px, 14vw, 96px);
+}
+
+@media (orientation: landscape) {
+  :root { --text-hero: clamp(2rem, 5.5vw, 5rem); }
 }
 
 html {
@@ -148,6 +161,7 @@ input:focus {
    Landing
    ========================================= */
 .landing {
+  position: relative;
   height: 100vh;
   height: 100dvh;
   display: flex;
@@ -161,7 +175,7 @@ input:focus {
 
 .landing-title {
   margin: 0;
-  font-size: clamp(3rem, 7vw, 5rem);
+  font-size: var(--text-hero);
   font-family: 'Chakra Petch', sans-serif;
   font-weight: 700;
   color: var(--accent);
@@ -183,7 +197,7 @@ input:focus {
   justify-content: center;
   gap: 6px;
   padding: 20px 32px;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   border-radius: 16px;
   min-width: 140px;
   min-height: 90px;
@@ -213,7 +227,7 @@ input:focus {
   align-items: center;
   gap: 10px;
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   width: 100%;
 }
 
@@ -258,7 +272,7 @@ input:focus {
 
 .join-label {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   color: #fff;
 }
 
@@ -307,7 +321,7 @@ input:focus {
   background: rgba(0, 0, 0, 0.3);
   padding: 6px 16px;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .landing-btn--back { background: transparent; color: var(--text-muted); border: 2px solid var(--border); min-height: unset; padding: 14px 28px; }
@@ -321,7 +335,7 @@ input:focus {
     max-width: 520px;
   }
   .landing-btn {
-    font-size: 1.3rem;
+    font-size: var(--text-xl);
     padding: 24px 40px;
     min-width: 180px;
     min-height: 110px;
@@ -338,10 +352,18 @@ input:focus {
 
 @media (orientation: landscape) {
   .landing {
+    justify-content: center;
+    padding-top: 0;
     gap: 16px;
   }
   .landing-title {
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-size: var(--text-hero);
+  }
+  .landing-btn {
+    font-size: clamp(1rem, 1.8vw, 1.4rem);
+    padding: clamp(16px, 1.8vh, 28px) clamp(24px, 2.5vw, 40px);
+    min-width: clamp(130px, 13vw, 200px);
+    min-height: clamp(80px, 11vh, 120px);
   }
   .landing-body {
     flex-direction: row;
@@ -367,7 +389,6 @@ input:focus {
   }
   .landing-btn--offline {
     width: auto;
-    min-width: 130px;
   }
 }
 
@@ -390,7 +411,7 @@ input:focus {
   flex-direction: row;
   align-items: stretch;
   overflow: hidden;
-  padding-top: 44px;
+  padding-top: 60px;
 }
 
 .scoreboard .score {
@@ -399,6 +420,15 @@ input:focus {
 
 .scoreboard .score-card:has(.team-name) .score {
   font-size: clamp(80px, max(29vh, 21vw), 270px);
+}
+
+@media (orientation: landscape) {
+  .scoreboard .score {
+    font-size: clamp(100px, min(82vh, 44vw), 600px);
+  }
+  .scoreboard .score-card:has(.team-name) .score {
+    font-size: clamp(80px, min(68vh, 37vw), 480px);
+  }
 }
 
 .scoreboard .team-name {
@@ -414,7 +444,7 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 1rem;
+  font-size: var(--text-base);
   padding: 8px 16px;
   background: rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(8px);
@@ -424,8 +454,11 @@ input:focus {
 }
 
 .room-badge-code {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   letter-spacing: 4px;
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-family: 'Roboto Mono', monospace;
   font-weight: bold;
   color: var(--text);
@@ -435,6 +468,10 @@ input:focus {
   padding: 6px 0;
   opacity: 0.85;
   transition: opacity 0.15s;
+}
+.room-badge-code svg {
+  letter-spacing: 0;
+  flex-shrink: 0;
 }
 
 .room-badge-code:hover {
@@ -496,7 +533,7 @@ input:focus {
 
 .score-switch-label {
   position: absolute;
-  font-size: 0.65rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.9);
   pointer-events: none;
@@ -547,23 +584,61 @@ input:focus {
   background: var(--bg-dark);
   border: 1px solid var(--border-mid);
   border-radius: 20px;
-  padding: 32px 40px 36px;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  min-width: 240px;
+  gap: 20px;
+  max-width: min(90vw, 320px);
 }
 
-.code-modal-label {
+.code-modal-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.code-modal-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.code-modal-section-title {
   margin: 0;
-  font-size: 1rem;
-  opacity: 0.6;
+  font-size: var(--text-sm);
+  opacity: 0.55;
   letter-spacing: 2px;
 }
 
+.code-modal-steps {
+  margin: 2px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+@media (orientation: landscape) {
+  .code-modal {
+    flex-direction: row;
+    align-items: center;
+    gap: 28px;
+    max-width: min(90vw, 540px);
+  }
+  .code-modal-divider {
+    width: 1px;
+    height: auto;
+    align-self: stretch;
+  }
+}
+
 .code-modal-code {
-  font-size: clamp(52px, 14vw, 96px);
+  font-size: var(--text-code);
   font-family: 'Roboto Mono', monospace;
   font-weight: 700;
   letter-spacing: 12px;
@@ -633,13 +708,13 @@ input:focus {
 }
 
 .modal-title {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   font-weight: 700;
   margin: 0 0 8px;
 }
 
 .modal-message {
-  font-size: 1rem;
+  font-size: var(--text-base);
   margin: 0 0 20px;
   opacity: 0.8;
 }
@@ -654,7 +729,7 @@ input:focus {
   flex: 1;
   padding: 10px 0;
   border-radius: 10px;
-  font-size: 1rem;
+  font-size: var(--text-base);
   border: none;
   cursor: pointer;
 }
@@ -673,7 +748,7 @@ input:focus {
    Controller
    ========================================= */
 .ctrl-room-code {
-  font-size: 1rem;
+  font-size: var(--text-base);
   letter-spacing: 2px;
 }
 
@@ -688,6 +763,7 @@ input:focus {
   justify-content: center;
   width: 44px;
   height: 44px;
+  color: inherit;
 }
 
 .ctrl-settings-btn:hover {
@@ -710,6 +786,12 @@ input:focus {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  touch-action: none;
+}
+
+.ctrl-scores.is-dragging,
+.ctrl-scores.is-dragging .ctrl-team-wrap {
+  overflow: visible;
 }
 
 .ctrl-team-wrap .score-card {
@@ -761,65 +843,60 @@ input:focus {
   background: rgba(0, 0, 0, 0.35);
 }
 
-.ctrl-fab {
+.ctrl-panel {
   position: absolute;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  right: 16px;
+  top: 60px;
+  left: 0;
+  right: 0;
   z-index: 20;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border: none;
-  color: var(--text);
-  font-size: 1rem;
-  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+}
+
+.ctrl-panel.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ctrl-panel .ctrl-records-panel {
+  max-height: 35vh;
+  overflow-y: auto;
+}
+
+.ctrl-panel-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px;
+}
+
+.ctrl-panel-btns .btn {
+  flex: 1 1 calc(50% - 4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s;
+  gap: 6px;
 }
 
-.ctrl-fab:hover {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.ctrl-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transform: translateY(100%);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.ctrl-footer.open {
-  transform: translateY(0);
-}
-
-.ctrl-footer-btns {
-  display: flex;
-  gap: 10px;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
-  padding-right: 65px;
-}
-
-.ctrl-footer-btns .btn {
-  flex: 1;
+@media (orientation: landscape) {
+  .ctrl-panel-btns .btn {
+    flex: 1;
+    flex-basis: auto;
+  }
 }
 
 .ctrl-btn {
   padding: 6px 28px;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   background: var(--border);
   color: var(--text);
 }
@@ -847,7 +924,7 @@ input:focus {
   gap: 4rem;
   padding: 6px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   color: var(--text);
 }
 
@@ -857,7 +934,7 @@ input:focus {
 
 .ctrl-records-empty {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   text-align: center;
   margin: 0;
 }
@@ -872,7 +949,7 @@ input:focus {
   color: #fff;
   padding: 10px 22px;
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   opacity: 0;
   pointer-events: none;
   z-index: 500;
@@ -908,7 +985,7 @@ input:focus {
 .settings-inner h3 {
   margin: 0 0 16px;
   text-align: center;
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
   color: var(--accent);
 }
 
@@ -921,7 +998,7 @@ input:focus {
 
 .settings-row label {
   width: 70px;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   flex-shrink: 0;
   color: var(--text-muted);
 }
@@ -931,7 +1008,7 @@ input:focus {
   border: 1px solid var(--border-mid);
   border-radius: 8px;
   padding: 8px;
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-family: "Concert One", "Kosugi Maru", sans-serif, cursive;
   background: var(--bg-surface);
   color: var(--text);
@@ -954,7 +1031,7 @@ input:focus {
 .settings-row--toggle label {
   width: auto;
   color: var(--text);
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 .settings-row--toggle input[type="checkbox"] {
@@ -1004,14 +1081,14 @@ input:focus {
   background: var(--warm);
   color: #fff;
   padding: 10px 28px;
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 .settings-cancel {
   background: var(--border-mid);
   color: var(--text);
   padding: 10px 28px;
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 /* =========================================
@@ -1040,12 +1117,12 @@ input:focus {
    PWA Install Banner
    ========================================= */
 .landing-credit {
-  font-size: 0.6rem;
+  position: absolute;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  font-size: var(--text-xs);
   opacity: 0.3;
   color: var(--text);
   letter-spacing: 1px;
-  margin-top: auto;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
 }
 
 .pwa-banner {
@@ -1060,7 +1137,7 @@ input:focus {
   padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
   background: var(--bg-dark);
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   border-top: 1px solid var(--border-mid);
 }
 
@@ -1073,7 +1150,7 @@ input:focus {
   background: var(--accent);
   color: var(--accent-fg);
   padding: 6px 14px;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   border-radius: 8px;
   white-space: nowrap;
 }
@@ -1083,7 +1160,7 @@ input:focus {
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   padding: 4px;
   line-height: 1;
   flex-shrink: 0;

@@ -1,12 +1,11 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import ConfirmModal from '../ConfirmModal'
 import Toast from '../Toast'
 import Icon from '../Icon'
-import settingsIcon from '../../assets/settings.svg'
 import useLongPress from '../../hooks/useLongPress'
 import RoomCodeModal from './RoomCodeModal'
 import SettingsOverlay from './SettingsOverlay'
-import RecordsPanel from './RecordsPanel'
+import ControlPanel from './ControlPanel'
 
 const INITIAL_OFFLINE_SCORE = () => {
   const saved = sessionStorage.getItem('nowScore')
@@ -27,6 +26,13 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
   )
 
   const [canScore, setCanScore] = useState(entry === 'offline')
+  const [panelOpen, setPanelOpen] = useState(false)
+  const [swapped, setSwapped] = useState(false)
+  const [dragOffset, setDragOffset] = useState(null) // { team, dx, dy }
+  const dragStartRef = useRef(null)  // { team, startX, startY }
+  const dragMovedRef = useRef(false)
+
+
   const [showRoomCodeModal, setShowRoomCodeModal] = useState(entry === 'create')
   const [leaveConfirm, setLeaveConfirm] = useState(false)
   const [resetConfirm, setResetConfirm] = useState(false)
@@ -124,6 +130,35 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
     setTimeout(() => setToast(false), 1500)
   }
 
+  const orderedTeams = swapped ? ['guest', 'host'] : ['host', 'guest']
+
+  const handleDragStart = useCallback((e, team) => {
+    if (e.target.closest('.card-toolbar')) return
+    dragStartRef.current = { team, startX: e.clientX, startY: e.clientY }
+    dragMovedRef.current = false
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }, [])
+
+  const handleDragMove = useCallback((e, team) => {
+    if (!dragStartRef.current || dragStartRef.current.team !== team) return
+    const dx = e.clientX - dragStartRef.current.startX
+    const dy = e.clientY - dragStartRef.current.startY
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) dragMovedRef.current = true
+    setDragOffset({ team, dx, dy })
+  }, [])
+
+  const handleDragEnd = useCallback((e, team) => {
+    if (!dragStartRef.current || dragStartRef.current.team !== team) return
+    const dx = e.clientX - dragStartRef.current.startX
+    const dy = e.clientY - dragStartRef.current.startY
+    const isLandscape = window.innerWidth > window.innerHeight
+    const dist = isLandscape ? Math.abs(dx) : Math.abs(dy)
+    const threshold = (isLandscape ? window.innerWidth : window.innerHeight) * 0.25
+    if (dist > threshold) setSwapped(s => !s)
+    dragStartRef.current = null
+    setDragOffset(null)
+  }, [])
+
   const onSubLongPress = useCallback(() => {
     setResetConfirm(true)
   }, [])
@@ -175,7 +210,7 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
         <div className="room-badge-left">
           {isOnline && (
             <button className="room-badge-code btn" onClick={() => setShowRoomCodeModal(true)}>
-              房間碼：{roomCode}
+              <Icon name="qrcode" size={14} />房間碼：{roomCode}
             </button>
           )}
           {!isOnline && (
@@ -184,13 +219,13 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
         </div>
         <div className="room-badge-actions">
           {canScore && (
-            <button className="ctrl-settings-btn" onClick={() => setSettingsOpen(true)}>
-              <img src={settingsIcon} alt="設定" width="22" height="22" />
+            <button className="ctrl-settings-btn" onClick={() => setPanelOpen(v => !v)} aria-label="操作選單">
+              <Icon name="more-vertical" size={20} />
             </button>
           )}
           <button
             className={`score-switch${canScore ? ' on' : ''}`}
-            onClick={() => setCanScore(v => !v)}
+            onClick={() => { setCanScore(v => !v); setPanelOpen(false) }}
             role="switch"
             aria-checked={canScore}
             aria-label="計分模式"
@@ -208,16 +243,29 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
         </div>
       </header>
 
-      <div className={`scores-wrap${canScore ? ' ctrl-scores' : ''}`}>
-        {['host', 'guest'].map(team => (
+      <div className={`scores-wrap${canScore ? ` ctrl-scores${dragOffset ? ' is-dragging' : ''}` : ''}`}>
+        {orderedTeams.map(team => {
+          const isDragging = dragOffset?.team === team
+          return (
           <div
             key={team}
-            className={canScore ? 'ctrl-team-wrap' : `display-team-wrap${canScore ? ' can-score' : ''}`}
+            className={canScore ? 'ctrl-team-wrap' : 'display-team-wrap'}
+            style={canScore ? {
+              transform: isDragging ? `translate(${dragOffset.dx}px, ${dragOffset.dy}px)` : undefined,
+              zIndex: isDragging ? 10 : undefined,
+              transition: isDragging ? 'none' : 'transform 0.25s ease',
+              opacity: isDragging ? 0.85 : 1,
+              cursor: isDragging ? 'grabbing' : 'grab',
+            } : undefined}
+            onPointerDown={canScore ? (e) => handleDragStart(e, team) : undefined}
+            onPointerMove={canScore ? (e) => handleDragMove(e, team) : undefined}
+            onPointerUp={canScore ? (e) => handleDragEnd(e, team) : undefined}
+            onPointerCancel={canScore ? (e) => handleDragEnd(e, team) : undefined}
           >
             <div
               className="score-card"
               style={{ backgroundColor: teams[`${team}Color`] }}
-              onClick={canScore ? () => handleAdd(team) : undefined}
+              onClick={canScore ? () => { if (!dragMovedRef.current) handleAdd(team) } : undefined}
             >
               {teams.showTeamNames && (
                 <div className="team-name">
@@ -241,16 +289,20 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
               </div>
             )}
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {canScore && (
-        <RecordsPanel
+        <ControlPanel
           records={records}
           score={score}
           onSave={handleSave}
           onDelete={handleDeleteRecord}
-          onResetConfirm={() => setResetConfirm(true)}
+          onResetConfirm={() => { setResetConfirm(true); setPanelOpen(false) }}
+          panelOpen={panelOpen}
+          onPanelClose={() => setPanelOpen(false)}
+          onSettingsOpen={() => { setSettingsOpen(true); setPanelOpen(false) }}
         />
       )}
 

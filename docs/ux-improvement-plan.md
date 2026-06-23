@@ -1037,3 +1037,308 @@ useCallback(fn, [])：
 ```
 
 **何時需要：** function 被當作 `useEffect` deps、`React.memo` 子元件的 props、或其他 memoization 比較時。平時不需要對所有 function 都加 `useCallback`。
+
+---
+
+## 第五輪修改（2026-06-23）
+
+---
+
+### 1. PWA Splash Screen（啟動白屏修正）
+
+**問題：** PWA 開啟時 body 無背景色，React bundle 載入前畫面全白。
+
+**解法：** 在 `index.html` `<head>` 加 inline `<style>`，並在 `<div id="root">` 預埋 splash 內容。React render 時自動覆蓋，不需任何 JS 控制移除。
+
+**改動：**
+- `index.html`：加 inline style 設 `body` 漸層背景；`#root` 內放 splash div（標題 + `© CM`）
+- `theme-color` meta 從 `#ffffff` 改為 `#485696`（手機狀態列同步）
+
+**Splash 規格：**
+- 背景：`var(--bg-gradient)`（與 Landing 完全一致）
+- 標題：`VolleyScore`，Chakra Petch 700，`color: #f9c784`，`letter-spacing: 4px`
+- `© CM`：`position: absolute; bottom: max(8px, env(safe-area-inset-bottom))`
+
+> 字型初次載入（未快取）可能短暫使用 fallback，屬 Google Fonts async 行為，無法避免。
+
+---
+
+### 2. RoomCodeModal 版面重構
+
+**改動：**
+- 移除倒數關閉功能及相關常數（`COUNTDOWN_SEC`、`RING_R`、`RING_C` 等）
+- X 關閉按鈕邊框從分段圓環改為單一實體圓形（`stroke: rgba(231,231,231,0.35)`）
+- Modal 由單欄改為左右（landscape）/ 上下（portrait）兩區塊
+
+**新版 Layout：**
+
+| 區塊 | 內容 |
+|------|------|
+| 左 / 上 | 標題「房間已開啟」＋大字房間碼 |
+| 右 / 下 | 標題「可掃碼加入」＋ QR Code（130×130px）＋步驟說明 |
+
+**步驟說明（`ol.code-modal-steps`）：**
+1. 掃碼開啟計分板
+2. 點選「進入房間」
+3. 輸入房間號
+
+**RWD：**
+- 預設（portrait）：`flex-direction: column`，分隔線為水平線
+- Landscape：`flex-direction: row`，分隔線為垂直線（`@media (orientation: landscape)`）
+
+---
+
+### 3. Display 比分數字放大（Landscape）
+
+**問題：** `max(38vh, 28vw)` 取大值，在 iPad landscape 僅約 291px；上限 360px 偏低。
+
+**解法：** 用 landscape media query 覆蓋，改用 `min(vh, vw)` 同時滿足高度與寬度限制。
+
+```css
+@media (orientation: landscape) {
+  .scoreboard .score {
+    font-size: clamp(100px, min(82vh, 44vw), 600px);
+  }
+  .scoreboard .score-card:has(.team-name) .score {
+    font-size: clamp(80px, min(68vh, 37vw), 480px);
+  }
+}
+```
+
+**實際效果（iPad landscape 1024×768）：**
+
+| | 舊值 | 新值 |
+|--|------|------|
+| 無隊名 | 291px | 450px |
+| 有隊名 | ~220px | 379px |
+
+> `min(82vh, 44vw)` 邏輯：各 score-card 佔 ~50vw，兩位數字需 ~1.1em 寬 → 44vw 恰好塞滿；高度上限 82vh。
+
+---
+
+### 4. Landing 版面修正
+
+#### 4a. `© CM` 在 Portrait 消失
+
+**原因：** `margin-top: auto` 依賴 flex 剩餘空間。若內容高度接近 100dvh，剩餘空間為 0，credit 被推至 100dvh 以下，遭 `overflow: hidden` 截斷。
+
+**修正：**
+```css
+.landing { position: relative; } /* 為 absolute 定位錨點 */
+.landing-credit {
+  position: absolute;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  /* 移除 margin-top: auto */
+}
+```
+
+#### 4b. Landscape 頂部空白過多
+
+**原因：** `padding-top: 15vh` 在 landscape 未被覆蓋，`justify-content: flex-start` 使內容靠上，頂部空白明顯。
+
+**修正：**
+```css
+@media (orientation: landscape) {
+  .landing {
+    justify-content: center;
+    padding-top: 0;
+  }
+}
+```
+
+#### 4c. PwaBanner 遮住 `© CM`
+
+**原因：** PwaBanner 為 `position: fixed; bottom: 0; z-index: 50`，credit 為 `position: absolute; bottom: 8px`，兩者重疊。
+
+**修正：** 將 PwaBanner 的 `show` 狀態向上傳遞，Landing 根據 `bannerVisible` 動態調整 credit 的 `bottom` 值。
+
+```jsx
+// PwaBanner
+const PwaBanner = ({ onShowChange }) => {
+  const dismiss = () => {
+    setShow(false)
+    onShowChange?.(false)
+  }
+}
+
+// Landing
+const [bannerVisible, setBannerVisible] = useState(/* 同步初始值 */)
+<span
+  className="landing-credit"
+  style={bannerVisible ? { bottom: 'calc(56px + max(8px, env(safe-area-inset-bottom)))' } : undefined}
+>© CM</span>
+<PwaBanner onShowChange={setBannerVisible} />
+```
+
+---
+
+### 5. 計分模式 — 拖曳調換隊伍卡位置
+
+**需求：** 計分者可拖曳分數卡，調換左右（landscape）或上下（portrait）順序，對應場上隊伍實際位置。
+
+**設計決策：** swap 為純 UI 顯示順序，不修改 Firebase 資料（host/guest 實際值不變）。
+
+**實作：**
+
+```jsx
+const [swapped, setSwapped] = useState(false)
+const orderedTeams = swapped ? ['guest', 'host'] : ['host', 'guest']
+
+// 使用 ref 追蹤拖曳狀態（不觸發 re-render）
+const dragStartRef = useRef(null)   // { team, startX, startY }
+const dragMovedRef = useRef(false)  // 判斷是否為真實拖曳（區分點擊）
+
+// dragOffset state 僅用於視覺平移
+const [dragOffset, setDragOffset] = useState(null) // { team, dx, dy }
+```
+
+**觸發條件：** 拖曳距離超過螢幕寬（landscape）或高（portrait）的 **25%**
+
+**與加分點擊的共存：** 移動距離 < 5px 視為點擊，`dragMovedRef.current` 為 false 時才觸發 `handleAdd`
+
+**CSS：**
+```css
+.ctrl-team-wrap { touch-action: none; }
+.ctrl-scores.is-dragging,
+.ctrl-scores.is-dragging .ctrl-team-wrap { overflow: visible; }
+```
+
+**限制：** 僅在計分模式（`canScore: true`）啟用；toolbar 區域（`.card-toolbar`）不觸發拖曳
+
+---
+
+## 第六輪修改（待實作，2026-06-23）
+
+---
+
+### 1. 設定 + 操作列整合（Header 下方 Control Panel）
+
+**問題：**
+- 右上角 ⚙ 開設定、左下角 FAB 開儲存/紀錄/重設，兩個入口造成認知分散
+- 左下角 FAB 在平板橫式使用時距離拇指自然落點遠
+- 底部 panel 在 portrait 四顆按鈕並排太擠
+
+**設計方向：**
+- 移除 FAB（`ctrl-fab`）
+- ⚙ 換成 `⋮`（more-vertical）icon，加入 `Icon.jsx`
+- 點擊後 control panel 從 header 正下方往下滑出（不是從底部往上）
+- panel 包含所有操作：**⚙ 設定** ｜ **儲存紀錄** ｜ **查看紀錄** ｜ **重設比數**
+- 「⚙ 設定」仍觸發現有 SettingsOverlay modal；其他三顆為直接動作
+
+**Layout：**
+
+Landscape（一行）：
+```
+┌──────────────────────────────────┐
+│ [房間碼]     [switch] [⋮] [←]   │  ← header
+├──────────────────────────────────┤
+│ [⚙ 設定] [儲存紀錄] [查看紀錄] [重設] │  ← panel 滑下
+└──────────────────────────────────┘
+```
+
+Portrait（2×2）：
+```
+┌──────────────────────────┐
+│ [房間碼]  [switch][⋮][←] │
+├──────────────────────────┤
+│  [⚙ 設定]   [儲存紀錄]   │
+│  [查看紀錄]  [重設比數]   │
+└──────────────────────────┘
+```
+
+**Icon 決策：**
+- `⋮` header 按鈕：新增 `more-vertical` 至 `Icon.jsx`
+- `⚙ 設定` 按鈕前的 icon：沿用現有 `assets/settings.svg`（22px），不新增 icon
+- 其他三顆按鈕：純文字，無 icon（操作語意明確，加 icon 反增視覺噪音）
+
+**CSS 核心：**
+```css
+.ctrl-panel {
+  position: absolute;
+  top: 44px;           /* 緊貼 header 底部 */
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  transform: translateY(-100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ctrl-panel.open { transform: translateY(0); }
+
+.ctrl-panel-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 16px;
+}
+.ctrl-panel-btns .btn { flex: 1 1 calc(50% - 5px); } /* portrait 2×2 */
+
+@media (orientation: landscape) {
+  .ctrl-panel-btns .btn { flex: 1; flex-basis: auto; } /* 一行並排 */
+}
+```
+
+**元件異動：**
+- `RecordsPanel.jsx`：移除 FAB；新增 `ctrl-panel` div 取代 `ctrl-footer`；panel state 改由 `⋮` 按鈕控制
+- `ScoreBoard/index.jsx`：header 中 ⚙ 換成 `⋮`，`setSettingsOpen` 移入 panel 的設定按鈕
+- `Icon.jsx`：新增 `more-vertical`（三個垂直圓點）
+- `style.css`：新增 `.ctrl-panel`、`.ctrl-panel-btns`；移除或保留 `.ctrl-fab`、`.ctrl-footer` 供 reference
+
+---
+
+### 2. Landing RWD 字體與按鈕響應式縮放（已完成）
+
+**問題：** Landscape 標題上限 `2.5rem`（40px）在桌面被截斷；按鈕 `font-size: 1.1rem` 固定不縮放。
+
+**修正：** 在 landscape media query 加入 `clamp()` 縮放規則。
+
+```css
+@media (orientation: landscape) {
+  .landing-title { font-size: clamp(2rem, 5.5vw, 5rem); }
+  .landing-btn {
+    font-size:  clamp(1rem, 1.8vw, 1.4rem);
+    padding:    clamp(16px, 1.8vh, 28px) clamp(24px, 2.5vw, 40px);
+    min-width:  clamp(130px, 13vw, 200px);
+    min-height: clamp(80px, 11vh, 120px);
+  }
+}
+```
+
+---
+
+## 待辦：全域 Type Scale Token 化（UI 收斂後統一處理）
+
+**背景：** 現有 `clamp()` 值散落各元件，調整字體比例需翻找 20-30 處。色彩 token 已完成（`--bg`、`--accent` 等），字體大小應比照辦理。
+
+**計劃：** 在 `:root` 新增 type scale token，替換現有分散的字體大小定義。
+
+```css
+:root {
+  --text-xs:    clamp(0.65rem, 1.2vw, 0.75rem);
+  --text-sm:    clamp(0.75rem, 1.5vw, 0.9rem);
+  --text-base:  clamp(0.9rem,  1.8vw, 1.05rem);
+  --text-lg:    clamp(1rem,    2vw,   1.3rem);
+  --text-xl:    clamp(1.3rem,  3vw,   2rem);
+  --text-hero:  clamp(2rem,    5.5vw, 5rem);
+  --text-score: clamp(100px,   min(82vh, 44vw), 600px);
+}
+```
+
+使用方式：
+```css
+.landing-title   { font-size: var(--text-hero); }
+.landing-btn     { font-size: var(--text-lg);   }
+.code-modal-code { font-size: var(--text-score); }
+```
+
+**效益對比：**
+
+| | 現在 | Token 化後 |
+|--|------|-----------|
+| 改標題大小 | 找 landing-title + 各 media query | 改 `--text-hero` 一行 |
+| 新元件字體 | 自己寫 clamp | 選最接近 token |
+| 各元件一致性 | 不保證 | 強制對齊 |
+| 遷移成本 | — | 約 1-2hr 全換完 |
+
+**執行時機：** 第六輪（Control Panel 整合）完成後進行。

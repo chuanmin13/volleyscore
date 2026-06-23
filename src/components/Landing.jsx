@@ -3,7 +3,7 @@ import LoadingOverlay from './LoadingOverlay'
 import Icon from './Icon'
 import JoinForm from './JoinForm'
 
-const PwaBanner = () => {
+const PwaBanner = ({ onShowChange }) => {
   const [show, setShow] = useState(() => {
     if (window.matchMedia('(display-mode: standalone)').matches) return false
     if (sessionStorage.getItem('pwa-banner-dismissed')) return false
@@ -23,6 +23,7 @@ const PwaBanner = () => {
   const dismiss = () => {
     sessionStorage.setItem('pwa-banner-dismissed', '1')
     setShow(false)
+    onShowChange?.(false)
   }
 
   const install = async () => {
@@ -57,6 +58,10 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
   const [view, setView] = useState('main') // 'main' | 'join'
   const [creating, setCreating] = useState(false)
   const [joining, setJoining] = useState(false)
+  const [bannerVisible, setBannerVisible] = useState(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches) return false
+    return !sessionStorage.getItem('pwa-banner-dismissed')
+  })
 
   const handleCreate = async () => {
     setCreating(true)
@@ -81,7 +86,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
           joinError={joinError}
           disabled={joining}
         />
-        <PwaBanner />
+        <PwaBanner onShowChange={setBannerVisible} />
       </div>
     )
   }
@@ -122,8 +127,11 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
         </div>
       </div>
 
-      <PwaBanner />
-      <span className="landing-credit">© CM</span>
+      <PwaBanner onShowChange={setBannerVisible} />
+      <span
+        className="landing-credit"
+        style={bannerVisible ? { bottom: 'calc(56px + max(8px, env(safe-area-inset-bottom)))' } : undefined}
+      >© CM</span>
     </div>
   )
 }
