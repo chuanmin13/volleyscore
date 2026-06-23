@@ -56,7 +56,8 @@ jobs:
             </script>
             <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;">
               <h1 style="margin:0;font-family:'Chakra Petch',sans-serif;font-size:clamp(3rem,7vw,5rem);font-weight:700;color:#f9c784;letter-spacing:4px;">VolleyScore</h1>
-              <p style="margin:8px 0 0;color:#e7e7e7;font-family:sans-serif;">正在跳轉至新網址… <a href="https://volleyscore.ctheworldx.com" style="color:#f9c784;">點此前往</a></p>
+              <p style="margin:12px 0 0;color:#e7e7e7;font-family:sans-serif;font-size:1.1rem;">正在跳轉至新網址… <a href="https://volleyscore.ctheworldx.com" style="color:#f9c784;">點此前往</a></p>
+              <p style="margin:16px 24px 0;color:#f9c784;font-family:sans-serif;font-size:0.95rem;text-align:center;line-height:1.6;max-width:320px;">📲 若你已將 VolleyScore 安裝至裝置桌面，<br>請在新網址重新安裝一次 PWA。</p>
               <span style="position:absolute;bottom:8px;font-size:0.6rem;opacity:0.3;color:#e7e7e7;letter-spacing:1px;">© CM</span>
             </div>
           </body>
