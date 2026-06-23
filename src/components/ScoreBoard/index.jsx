@@ -136,14 +136,17 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
     if (e.target.closest('.card-toolbar')) return
     dragStartRef.current = { team, startX: e.clientX, startY: e.clientY }
     dragMovedRef.current = false
-    e.currentTarget.setPointerCapture(e.pointerId)
+    // 不在此處 setPointerCapture，避免提早 capture 導致 click 事件被重導向而失效
   }, [])
 
   const handleDragMove = useCallback((e, team) => {
     if (!dragStartRef.current || dragStartRef.current.team !== team) return
     const dx = e.clientX - dragStartRef.current.startX
     const dy = e.clientY - dragStartRef.current.startY
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) dragMovedRef.current = true
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      if (!dragMovedRef.current) e.currentTarget.setPointerCapture(e.pointerId)
+      dragMovedRef.current = true
+    }
     setDragOffset({ team, dx, dy })
   }, [])
 
