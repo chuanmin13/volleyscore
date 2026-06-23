@@ -8,29 +8,21 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      pwaAssets: {
+        config: true,
+        overrideManifestIcons: true,
+      },
       manifest: {
         name: 'VolleyScore',
         short_name: 'VolleyScore',
         description: 'VolleyScore 是支援遠端遙控的排球記分板，可用平板顯示比分、手機遠端操控。',
         start_url: '/',
         display: 'standalone',
-        theme_color: '#ea5455',
-        background_color: '#ffffff',
+        theme_color: '#485696',
+        background_color: '#485696',
         orientation: 'landscape',
         categories: ['sports'],
-        icons: [
-          {
-            src: '/scoreCalc.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: '/scoreCalc.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable',
-          },
-        ],
+        icons: [],
         screenshots: [
           {
             src: '/img/scoreCounter.jpg',
