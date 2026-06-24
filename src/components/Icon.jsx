@@ -25,6 +25,11 @@ const paths = {
     <line x1="3" y1="12" x2="21" y2="12" {...S} />
     <line x1="3" y1="18" x2="21" y2="18" {...S} />
   </>,
+  swap: <>
+    <polyline points="7 8 3 12 7 16" {...S} />
+    <polyline points="17 8 21 12 17 16" {...S} />
+    <line x1="3" y1="12" x2="21" y2="12" {...S} />
+  </>,
 }
 
 const Icon = ({ name, size = 20 }) => (
