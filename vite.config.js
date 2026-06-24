@@ -36,6 +36,11 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
+            // Vercel Analytics：不快取，永遠走網路
+            urlPattern: /\/_vercel\/insights\//,
+            handler: 'NetworkOnly',
+          },
+          {
             // Firebase Realtime Database：不快取，永遠走網路
             urlPattern: /^https:\/\/.*\.firebasedatabase\.app\//,
             handler: 'NetworkOnly',
