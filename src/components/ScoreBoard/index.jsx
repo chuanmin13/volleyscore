@@ -134,7 +134,8 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
 
   const handleDragStart = useCallback((e, team) => {
     if (e.target.closest('.card-toolbar')) return
-    dragStartRef.current = { team, startX: e.clientX, startY: e.clientY }
+    const rect = e.currentTarget.getBoundingClientRect()
+    dragStartRef.current = { team, startX: e.clientX, startY: e.clientY, cardW: rect.width, cardH: rect.height }
     dragMovedRef.current = false
     // 不在此處 setPointerCapture，避免提早 capture 導致 click 事件被重導向而失效
   }, [])
@@ -143,11 +144,14 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
     if (!dragStartRef.current || dragStartRef.current.team !== team) return
     const dx = e.clientX - dragStartRef.current.startX
     const dy = e.clientY - dragStartRef.current.startY
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
       if (!dragMovedRef.current) e.currentTarget.setPointerCapture(e.pointerId)
       dragMovedRef.current = true
     }
-    setDragOffset({ team, dx, dy })
+    const isLandscape = window.innerWidth > window.innerHeight
+    const cardDim = isLandscape ? dragStartRef.current.cardW : dragStartRef.current.cardH
+    const dist = isLandscape ? Math.abs(dx) : Math.abs(dy)
+    setDragOffset({ team, dx, dy, willSwap: dist > cardDim * 0.3 })
   }, [])
 
   const handleDragEnd = useCallback((e, team) => {
@@ -249,10 +253,12 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
       <div className={`scores-wrap${canScore ? ` ctrl-scores${dragOffset ? ' is-dragging' : ''}` : ''}`}>
         {orderedTeams.map(team => {
           const isDragging = dragOffset?.team === team
+          const isSwapTarget = !isDragging && !!dragOffset?.willSwap
+          const isPortrait = window.innerWidth <= window.innerHeight
           return (
           <div
             key={team}
-            className={canScore ? 'ctrl-team-wrap' : 'display-team-wrap'}
+            className={`${canScore ? 'ctrl-team-wrap' : 'display-team-wrap'}${isSwapTarget ? ' swap-target' : ''}`}
             style={canScore ? {
               transform: isDragging ? `translate(${dragOffset.dx}px, ${dragOffset.dy}px)` : undefined,
               zIndex: isDragging ? 10 : undefined,
@@ -276,6 +282,11 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
                 </div>
               )}
               <div className="score">{score[team]}</div>
+              {isDragging && dragOffset?.willSwap && (
+                <div className={`swap-hint-overlay${isPortrait ? ' swap-hint-overlay--portrait' : ''}`}>
+                  <Icon name="swap" size={100} />
+                </div>
+              )}
             </div>
             {canScore && (
               <div className="card-toolbar" style={{ backgroundColor: teams[`${team}Color`] }}>
