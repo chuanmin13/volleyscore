@@ -54,6 +54,8 @@ const PwaBanner = ({ onShowChange }) => {
   )
 }
 
+const GUIDE_URL = 'https://ctheworldx.com/blog/project-volleyscore-guide'
+
 const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError }) => {
   const [view, setView] = useState('main') // 'main' | 'join'
   const [creating, setCreating] = useState(false)
@@ -87,6 +89,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
           disabled={joining}
         />
         <PwaBanner onShowChange={setBannerVisible} />
+        <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" className="help-btn landing-help" aria-label="使用說明">?</a>
       </div>
     )
   }
@@ -131,7 +134,12 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
       <span
         className="landing-credit"
         style={bannerVisible ? { bottom: 'calc(56px + max(8px, env(safe-area-inset-bottom)))' } : undefined}
-      >© CM</span>
+      >
+        © CM
+        <span className="landing-credit-sep"> · </span>
+        <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" className="landing-credit-link">使用說明</a>
+      </span>
+      <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" className="help-btn landing-help" aria-label="使用說明">?</a>
     </div>
   )
 }
