@@ -16,6 +16,8 @@ const INITIAL_OFFLINE_TEAMS = {
   hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd', showTeamNames: false,
 }
 
+const GUIDE_URL = 'https://ctheworldx.com/blog/project-volleyscore-guide'
+
 const ScoreBoard = ({ room, entry, onLeave }) => {
   const isOnline = room !== null
 
@@ -223,6 +225,7 @@ const ScoreBoard = ({ room, entry, onLeave }) => {
           {!isOnline && (
             <span className="ctrl-room-code">快速開始</span>
           )}
+          <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" className="help-btn" aria-label="使用說明">?</a>
         </div>
         <div className="room-badge-actions">
           {canScore && (
