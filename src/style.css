@@ -631,7 +631,7 @@ input:focus {
     flex-direction: row;
     align-items: center;
     gap: 28px;
-    max-width: min(90vw, 640px);
+    max-width: min(95vw, 640px);
   }
   .code-modal-divider {
     width: 1px;
