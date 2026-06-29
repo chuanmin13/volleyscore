@@ -610,6 +610,12 @@ input:focus {
   letter-spacing: 2px;
 }
 
+.code-modal-text {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
 .code-modal-steps {
   margin: 2px 0 0;
   padding-left: 18px;
@@ -625,7 +631,7 @@ input:focus {
     flex-direction: row;
     align-items: center;
     gap: 28px;
-    max-width: min(90vw, 540px);
+    max-width: min(90vw, 640px);
   }
   .code-modal-divider {
     width: 1px;

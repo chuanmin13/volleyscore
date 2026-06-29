@@ -1,4 +1,4 @@
-import qrCode from '../../assets/link_qrcode.svg'
+import qrCode from '../../assets/qrcode.jpg'
 
 const RoomCodeModal = ({ roomCode, onClose }) => {
   return (
@@ -21,7 +21,8 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
 
         <div className="code-modal-section">
           <p className="code-modal-section-title">可掃碼加入</p>
-          <img src={qrCode} alt="link_qrcode" width={140} height={140} />
+          <img src={qrCode} alt="qrcode" width={140} height={140} />
+          <p className="code-modal-text">volleyscore.ctheworldx.com</p>
           <ol className="code-modal-steps">
             <li>掃碼開啟計分板</li>
             <li>點選「進入房間」</li>
