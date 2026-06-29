@@ -36,6 +36,15 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
+            // App 導覽請求：優先走網路，逾時 3 秒 fallback 快取
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              networkTimeoutSeconds: 3,
+              cacheName: 'navigation-cache',
+            },
+          },
+          {
             // Vercel Analytics：不快取，永遠走網路
             urlPattern: /\/_vercel\/insights\//,
             handler: 'NetworkOnly',
