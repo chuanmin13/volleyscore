@@ -1295,6 +1295,59 @@ input:focus {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.guide-intro {
+  padding: 10px max(20px, env(safe-area-inset-right)) 10px max(20px, env(safe-area-inset-left));
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: 1.6;
+  background: rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.guide-intro strong {
+  color: var(--text);
+}
+
+.guide-tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+
+.guide-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.guide-tab {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 6px;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.guide-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.guide-tab:hover:not(.active) {
+  color: var(--text);
+}
+
 .guide-body {
   flex: 1;
   overflow-y: auto;
@@ -1349,7 +1402,7 @@ input:focus {
 
 .guide-step {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   font-size: var(--text-sm);
   color: var(--text-muted);
   align-items: flex-start;
@@ -1361,7 +1414,7 @@ input:focus {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(249, 199, 132, 0.2);
+  /* background: rgba(249, 199, 132, 0.2); */
   color: var(--accent);
   font-size: var(--text-xs);
   display: flex;
