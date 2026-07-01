@@ -54,9 +54,7 @@ const PwaBanner = ({ onShowChange }) => {
   )
 }
 
-const GUIDE_URL = 'https://ctheworldx.com/blog/project-volleyscore-guide'
-
-const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError }) => {
+const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError, onShowGuide }) => {
   const [view, setView] = useState('main') // 'main' | 'join'
   const [creating, setCreating] = useState(false)
   const [joining, setJoining] = useState(false)
@@ -89,7 +87,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
           disabled={joining}
         />
         <PwaBanner onShowChange={setBannerVisible} />
-        <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" className="help-btn landing-help" aria-label="使用說明">?</a>
+        <button onClick={onShowGuide} className="btn help-btn landing-help" aria-label="使用說明">?</button>
       </div>
     )
   }
@@ -137,9 +135,9 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError 
       >
         © CM
         <span className="landing-credit-sep"> · </span>
-        <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" className="landing-credit-link">使用說明</a>
+        <button onClick={onShowGuide} className="btn landing-credit-link landing-credit-btn">使用說明</button>
       </span>
-      <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" className="help-btn landing-help" aria-label="使用說明">?</a>
+      <button onClick={onShowGuide} className="btn help-btn landing-help" aria-label="使用說明">?</button>
     </div>
   )
 }
