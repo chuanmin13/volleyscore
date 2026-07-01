@@ -1326,7 +1326,7 @@ input:focus {
   flex: 1;
   min-width: 0;
   padding: 11px 6px;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--text-muted);
   font-weight: 600;
   letter-spacing: 1px;
@@ -1355,6 +1355,24 @@ input:focus {
   overscroll-behavior: contain;
 }
 
+.guide-hint {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 14px 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+}
+
+.guide-hint-btn {
+  pointer-events: none;
+  min-height: 56px !important;
+  min-width: 100px !important;
+  padding: 10px 18px !important;
+  font-size: var(--text-sm) !important;
+}
+
 .guide-section {
   margin-bottom: 30px;
 }
@@ -1376,7 +1394,7 @@ input:focus {
 .guide-p {
   font-size: var(--text-sm);
   color: var(--text-muted);
-  margin: 0 0 8px;
+  margin: 8px 0 8px;
   line-height: 1.65;
 }
 

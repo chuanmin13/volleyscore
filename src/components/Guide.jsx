@@ -18,6 +18,14 @@ const SubTitle = ({ children }) => (
   <p className="guide-p" style={{ color: 'var(--text)', fontWeight: 700, marginBottom: 6 }}>{children}</p>
 )
 
+const LandingBtnPreview = ({ variant, children }) => (
+  <span className={`btn landing-btn landing-btn--${variant} guide-hint-btn`}>{children}</span>
+)
+
+const BtnHint = ({ children }) => (
+  <div className="guide-hint">{children}</div>
+)
+
 const FaqItem = ({ q, children }) => (
   <div className="guide-faq-item">
     <p className="guide-faq-q">{q}</p>
@@ -27,31 +35,36 @@ const FaqItem = ({ q, children }) => (
 
 const TabRemote = () => (
   <>
-    <Section title="遠端模式">
-      <p className="guide-p">多支裝置加入同一個房間，即時同步分數。適合一台顯示、一或多台控制的場景。</p>
+    <p className="guide-p">多支裝置加入同一個房間，即時同步分數。適合一台顯示、一或多台控制的場景。</p>
+    <BtnHint>
+      <LandingBtnPreview variant="display">建立房間</LandingBtnPreview>
+      <LandingBtnPreview variant="controller">加入房間</LandingBtnPreview>
+    </BtnHint>
 
-      <SubTitle>建立房間</SubTitle>
-      <ol className="guide-steps">
-        <li className="guide-step"><span className="guide-step-num">1.</span><span>點選「建立房間」，系統自動產生 4 位數代碼與網頁 QR code</span></li>
-        <li className="guide-step"><span className="guide-step-num">2.</span><span>將代碼或 QR code 分享給其他裝置掃描加入</span></li>
-      </ol>
+    <SubTitle>建立房間</SubTitle>
+    <ol className="guide-steps">
+      <li className="guide-step"><span className="guide-step-num">1.</span><span>點選「建立房間」，系統自動產生 4 位數代碼與網頁 QR code</span></li>
+      <li className="guide-step"><span className="guide-step-num">2.</span><span>將代碼分享給其他裝置加入</span></li>
+    </ol>
 
-      <SubTitle style={{ marginTop: 14 }}>加入房間</SubTitle>
-      <ol className="guide-steps">
-        <li className="guide-step"><span className="guide-step-num">1.</span><span>點選「加入房間」</span></li>
-        <li className="guide-step"><span className="guide-step-num">2.</span><span>輸入 4 位數代碼</span></li>
-      </ol>
+    <SubTitle style={{ marginTop: '8px' }}>加入房間</SubTitle>
+    <ol className="guide-steps">
+      <li className="guide-step"><span className="guide-step-num">1.</span><span>點選「加入房間」</span></li>
+      <li className="guide-step"><span className="guide-step-num">2.</span><span>輸入 4 位數代碼</span></li>
+    </ol>
 
-      <Note>各裝置不需在同一個 Wi-Fi，只要各自有網路連線即可。</Note>
-    </Section>
+    <Note>各裝置不需在同一個 Wi-Fi，只要各自有網路連線即可。</Note>
   </>
 )
 
 const TabOffline = () => (
-  <Section title="單機模式">
+  <>
+    <BtnHint>
+      <LandingBtnPreview variant="offline">快速開始</LandingBtnPreview>
+    </BtnHint>
     <p className="guide-p">點選「快速開始」，不需要網路或房間代碼，直接進入計分。</p>
     <Note>單機模式的資料僅存在當前瀏覽器，返回首頁或關閉分頁後會清除。</Note>
-  </Section>
+  </>
 )
 
 const TabOther = () => (
@@ -106,7 +119,7 @@ const TabOther = () => (
 )
 
 const TabFaq = () => (
-  <Section title="常見問題">
+  <>
     <FaqItem q="Q：離開頁面後找不回房間代碼？">
       返回首頁後房間代碼不會保留。若需重新加入，請對方重新建立房間，或事先截圖保存房間碼。
     </FaqItem>
@@ -126,7 +139,7 @@ const TabFaq = () => (
         <li className="guide-step"><span className="guide-step-num">2.</span><span>選擇「安裝應用程式」或「新增至主畫面」</span></li>
       </ol>
     </FaqItem>
-  </Section>
+  </>
 )
 
 const TAB_CONTENT = [<TabRemote />, <TabOffline />, <TabOther />, <TabFaq />]
