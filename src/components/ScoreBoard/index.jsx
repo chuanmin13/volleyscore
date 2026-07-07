@@ -3,6 +3,7 @@ import ConfirmModal from '../ConfirmModal'
 import Toast from '../Toast'
 import Icon from '../Icon'
 import useLongPress from '../../hooks/useLongPress'
+import useWakeLock from '../../hooks/useWakeLock'
 import RoomCodeModal from './RoomCodeModal'
 import SettingsOverlay from './SettingsOverlay'
 import ControlPanel from './ControlPanel'
@@ -17,6 +18,7 @@ const INITIAL_OFFLINE_TEAMS = {
 }
 
 const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
+  useWakeLock()
   const isOnline = room !== null
 
   const [offlineScore, setOfflineScore] = useState(INITIAL_OFFLINE_SCORE)
