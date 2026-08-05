@@ -1118,6 +1118,231 @@ input:focus {
   margin-top: 16px;
 }
 
+/* Draw Teams (抽籤分隊) */
+.draw-inner {
+  width: min(92vw, 440px);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.draw-total-row {
+  justify-content: space-between;
+}
+
+.draw-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.draw-stepper-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--border);
+  color: var(--text);
+  font-size: var(--text-lg);
+  line-height: 1;
+  padding: 0;
+}
+
+.draw-stepper-value {
+  min-width: 24px;
+  text-align: center;
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.draw-quota-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.draw-quota-badge {
+  flex: 1;
+  text-align: center;
+  padding: 6px 0;
+  border-radius: 8px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: #fff;
+}
+
+.draw-groups {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.draw-groups-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.draw-add-group-btn {
+  background: var(--border);
+  color: var(--text);
+  font-size: var(--text-xs);
+  padding: 6px 10px;
+}
+
+.draw-groups-empty {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-align: center;
+  margin: 8px 0;
+}
+
+.draw-group-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: var(--text-sm);
+}
+
+.draw-group-row:last-of-type {
+  border-bottom: none;
+}
+
+.draw-group-del {
+  padding: 4px;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.draw-add-group-form {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.draw-add-group-mode {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.draw-mode-btn {
+  flex: 1;
+  background: var(--border);
+  color: var(--text);
+  font-size: var(--text-sm);
+  padding: 8px 0;
+}
+
+.draw-mode-btn.active {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.draw-add-group-team {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.draw-team-pick {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: transparent;
+  font-weight: 700;
+}
+
+.draw-add-group-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.draw-error {
+  color: var(--energy);
+  font-size: var(--text-sm);
+  text-align: center;
+  margin: 4px 0 12px;
+}
+
+.draw-tally {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.draw-tally-badge {
+  flex: 1;
+  text-align: center;
+  padding: 6px 0;
+  border-radius: 8px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: #fff;
+}
+
+.draw-lots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.draw-lot {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-mid);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.draw-lot--fixed {
+  cursor: default;
+  color: #fff;
+  opacity: 0.9;
+}
+
+.draw-lot-team {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.draw-lot-back-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.draw-lot-size {
+  font-size: 0.6rem;
+  opacity: 0.85;
+  text-align: center;
+}
+
+.draw-lot--revealed {
+  color: #fff;
+  animation: draw-lot-flip 0.4s ease;
+}
+
+@keyframes draw-lot-flip {
+  0% { transform: rotateY(0deg); }
+  50% { transform: rotateY(90deg); }
+  100% { transform: rotateY(0deg); }
+}
+
 .settings-apply {
   background: var(--warm);
   color: #fff;
