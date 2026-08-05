@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Icon from '../Icon'
 import settingsIcon from '../../assets/settings.svg'
 
-const ControlPanel = ({ records, onSave, onDelete, onResetConfirm, panelOpen, onPanelClose, onSettingsOpen }) => {
+const ControlPanel = ({ records, onSave, onDelete, onResetConfirm, panelOpen, onPanelClose, onSettingsOpen, onDrawOpen }) => {
   const [recordsOpen, setRecordsOpen] = useState(false)
 
   const showRecords = panelOpen && recordsOpen
@@ -42,6 +42,9 @@ const ControlPanel = ({ records, onSave, onDelete, onResetConfirm, panelOpen, on
         </button>
         <button className="btn ctrl-btn ctrl-btn--reset" onClick={onResetConfirm}>
           重設比數
+        </button>
+        <button className="btn ctrl-btn" onClick={onDrawOpen}>
+          抽籤分隊
         </button>
       </div>
     </div>

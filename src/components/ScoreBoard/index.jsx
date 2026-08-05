@@ -6,6 +6,7 @@ import useLongPress from '../../hooks/useLongPress'
 import useWakeLock from '../../hooks/useWakeLock'
 import RoomCodeModal from './RoomCodeModal'
 import SettingsOverlay from './SettingsOverlay'
+import DrawTeamsModal from './DrawTeamsModal'
 import ControlPanel from './ControlPanel'
 
 const INITIAL_OFFLINE_SCORE = () => {
@@ -40,6 +41,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
   const [resetConfirm, setResetConfirm] = useState(false)
   const [recordsFull, setRecordsFull] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [drawOpen, setDrawOpen] = useState(false)
   const [toast, setToast] = useState(false)
 
   const score = isOnline ? room.roomData.score : offlineScore
@@ -187,6 +189,10 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
         />
       )}
 
+      {drawOpen && (
+        <DrawTeamsModal onClose={() => setDrawOpen(false)} />
+      )}
+
       {leaveConfirm && (
         <ConfirmModal
           message={isOnline ? '確定離開房間？' : '返回首頁將清除目前比分及所有紀錄'}
@@ -320,6 +326,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           panelOpen={panelOpen}
           onPanelClose={() => setPanelOpen(false)}
           onSettingsOpen={() => { setSettingsOpen(true); setPanelOpen(false) }}
+          onDrawOpen={() => { setDrawOpen(true); setPanelOpen(false) }}
         />
       )}
 
