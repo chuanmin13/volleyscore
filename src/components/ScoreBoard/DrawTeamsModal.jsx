@@ -9,10 +9,14 @@ const MAX_GROUP_SIZE = 6
 
 // 翻牌前的裝飾樣式，跟隊伍結果無關，純粹讓籤卡看起來不無聊
 const BACK_EMOJIS = [
-  '🎲', '🎯', '🎁', '🎫', '🀄', '🎴', '🍀', '⭐', '🔮', '🎈',
-  '🎉', '🎊', '🧧', '🏐', '⚽', '🏀', '🎵', '🎶', '💎', '🔥',
+  '🎲', '🎯', '🎁', '🦭', '🀄', '🍤', '🍀', '⭐', '🔮', '🎈',
+  '🎉', '🎊', '🧧', '🏐', '⚽', '⛄️', '🐡', '🎶', '💎', '🔥',
   '⚡', '🍉', '🍕', '🍔', '🐯', '🐶', '🐱', '🐵', '🦊', '🐼',
-  '👻', '🤡', '🥳', '🌟', '✨', '🎪', '🎰', '🃏',
+  '👻', '🤡', '🥳', '🌟', '✨', '🎪', '🎰', '🦕', '🐷', '🫍',
+  '🎸', '🫀', '🥊', '💩', '👾', '👽', '🧠', '💋', '👑', '🐥',
+  '🌝', '🦥', '🍗', '🐸', '🎏', '🥑', '🧸', '💌', '🧟', '😈',
+  '👱🏿‍♂️', '🎅🏻', '🐝', '🫎', '🦉', '🦄', '🍄', '🥕', '🥦', '🫐',
+  '🥐', '🥃', '🍻', '🌊', '⛰️', '☁️', '🌚', '🪁', ''
 ]
 const shuffle = (arr) => {
   const a = [...arr]
@@ -91,6 +95,15 @@ const validateSetup = (total, groups) => {
     }
   }
 
+  const designatedByTeam = { A: 0, B: 0, C: 0 }
+  groups.filter(g => g.mode === 'fixed' && g.scoreDesignated).forEach(g => { designatedByTeam[g.team]++ })
+
+  for (const key of TEAM_KEYS) {
+    if (designatedByTeam[key] > 1) {
+      return { ok: false, quotas, message: `${key} 隊已有多組指定計分，請取消其中一組` }
+    }
+  }
+
   const remainingQuotas = quotas.map((q, i) => q - fixedByTeam[TEAM_KEYS[i]])
   const drawGroups = groups.filter(g => g.mode === 'draw')
 
@@ -99,6 +112,22 @@ const validateSetup = (total, groups) => {
   }
 
   return { ok: true, quotas, remainingQuotas, drawGroups }
+}
+
+// 每隊選出一張「計分」記號卡：固定隊伍中有指定計分的群組優先，否則從該隊卡片中隨機挑一張
+const assignScorers = (fixedLots, lots) => {
+  const scorerIds = new Set()
+  TEAM_KEYS.forEach(team => {
+    const candidates = [...fixedLots, ...lots].filter(l => l.team === team)
+    if (candidates.length === 0) return
+    const designated = candidates.find(l => l.scoreDesignated)
+    const chosen = designated || candidates[Math.floor(Math.random() * candidates.length)]
+    scorerIds.add(chosen.id)
+  })
+  return {
+    fixedLots: fixedLots.map(l => ({ ...l, isScorer: scorerIds.has(l.id) })),
+    lots: lots.map(l => ({ ...l, isScorer: scorerIds.has(l.id) })),
+  }
 }
 
 // 依剩餘隊伍名額，隨機把代表抽籤群組與個人分配進三隊，回傳打亂順序的籤陣列
@@ -164,16 +193,28 @@ const DrawTeamsModal = ({ onClose }) => {
   }
 
   const confirmAddGroup = () => {
-    setGroups(gs => [...gs, { id: nextGroupId.current++, size: newSize, mode: newMode, team: newMode === 'fixed' ? newTeam : null }])
+    setGroups(gs => [...gs, {
+      id: nextGroupId.current++,
+      size: newSize,
+      mode: newMode,
+      team: newMode === 'fixed' ? newTeam : null,
+      scoreDesignated: false,
+    }])
     setAddingGroup(false)
   }
 
   const removeGroup = (id) => setGroups(gs => gs.filter(g => g.id !== id))
 
+  const toggleScoreDesignated = (id) =>
+    setGroups(gs => gs.map(g => (g.id === id ? { ...g, scoreDesignated: !g.scoreDesignated } : g)))
+
   const startDraw = () => {
     if (!validation.ok) return
-    setFixedLots(groups.filter(g => g.mode === 'fixed').map(g => ({ id: `f-${g.id}`, size: g.size, team: g.team })))
-    setLots(buildLots(validation.drawGroups, validation.remainingQuotas))
+    const fixed = groups.filter(g => g.mode === 'fixed').map(g => ({ id: `f-${g.id}`, size: g.size, team: g.team, scoreDesignated: g.scoreDesignated }))
+    const drawn = buildLots(validation.drawGroups, validation.remainingQuotas)
+    const withScorers = assignScorers(fixed, drawn)
+    setFixedLots(withScorers.fixedLots)
+    setLots(withScorers.lots)
     setPhase('draw')
   }
 
@@ -221,10 +262,26 @@ const DrawTeamsModal = ({ onClose }) => {
                 <div key={g.id} className="draw-group-row">
                   <span className="draw-group-desc">
                     {g.size} 人・{g.mode === 'fixed' ? `固定 ${g.team} 隊` : '派代表抽籤'}
+                    {g.scoreDesignated && (
+                      <span className="draw-group-score-badge">
+                        <Icon name="pencil" size={11} />指定計分
+                      </span>
+                    )}
                   </span>
-                  <button className="btn draw-group-del" aria-label="刪除群組" onClick={() => removeGroup(g.id)}>
-                    <Icon name="close" size={14} />
-                  </button>
+                  <div className="draw-group-actions">
+                    {g.mode === 'fixed' && (
+                      <input
+                        type="checkbox"
+                        className="draw-group-score-check"
+                        aria-label="指定這組人計分"
+                        checked={g.scoreDesignated}
+                        onChange={() => toggleScoreDesignated(g.id)}
+                      />
+                    )}
+                    <button className="btn draw-group-del" aria-label="刪除群組" onClick={() => removeGroup(g.id)}>
+                      <Icon name="close" size={14} />
+                    </button>
+                  </div>
                 </div>
               ))}
 
@@ -285,15 +342,24 @@ const DrawTeamsModal = ({ onClose }) => {
 
             <div className="draw-lots-grid">
               {fixedLots.map(l => (
-                <div key={l.id} className="draw-lot draw-lot--fixed" style={{ backgroundColor: TEAM_COLORS[l.team] }}>
+                <div
+                  key={l.id}
+                  className={`draw-lot draw-lot--fixed${l.isScorer ? ' draw-lot--scorer' : ''}`}
+                  style={{ backgroundColor: TEAM_COLORS[l.team] }}
+                >
                   <span className="draw-lot-team">{l.team}</span>
                   {l.size > 1 && <span className="draw-lot-size">{l.size} 人固定</span>}
+                  {l.isScorer && (
+                    <span className="draw-lot-scorer-badge" aria-label="計分">
+                      <Icon name="pencil" size={12} />
+                    </span>
+                  )}
                 </div>
               ))}
               {lots.map(l => (
                 <button
                   key={l.id}
-                  className={`draw-lot${l.revealed ? ' draw-lot--revealed' : ''}`}
+                  className={`draw-lot${l.revealed ? ' draw-lot--revealed' : ''}${l.revealed && l.isScorer ? ' draw-lot--scorer' : ''}`}
                   style={l.revealed ? { backgroundColor: TEAM_COLORS[l.team] } : { backgroundColor: '#22222260' }}
                   onClick={() => !l.revealed && revealLot(l.id)}
                 >
@@ -301,6 +367,11 @@ const DrawTeamsModal = ({ onClose }) => {
                     ? <span className="draw-lot-team">{l.team}</span>
                     : <span className="draw-lot-back-emoji">{l.backEmoji}</span>}
                   {l.size > 1 && <span className="draw-lot-size">{l.size} 人一組</span>}
+                  {l.revealed && l.isScorer && (
+                    <span className="draw-lot-scorer-badge" aria-label="計分">
+                      <Icon name="pencil" size={12} />
+                    </span>
+                  )}
                 </button>
               ))}
             </div>

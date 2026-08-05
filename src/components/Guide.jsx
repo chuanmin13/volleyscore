@@ -112,6 +112,26 @@ const TabOther = () => (
       </ul>
     </Section>
 
+    <Section title="抽籤分隊">
+      <p className="guide-p">在設定面板開啟「抽籤分隊」，輸入總人數後會自動平均分成三隊，也可依需求綁定群組。</p>
+
+      <SubTitle>綁定群組</SubTitle>
+      <ul className="guide-steps">
+        <li className="guide-step"><span className="guide-step-num">．</span><span>派代表抽籤：整組人一起隨機分到某一隊，抽籤時以一張籤卡代表整組</span></li>
+        <li className="guide-step"><span className="guide-step-num">．</span><span>固定隊伍：直接指定這組人進某一隊，不參與抽籤</span></li>
+      </ul>
+
+      <SubTitle style={{ marginTop: '8px' }}>指定計分</SubTitle>
+      <p className="guide-p">已加入的「固定隊伍」群組，可點擊列表中的 <Icon name="pencil" size={12} /> 圖示，指定由這組人負責該隊計分（同一隊最多指定一組）。沒有指定的隊伍，抽籤結束後會從該隊籤卡中隨機挑一張標示 <Icon name="pencil" size={12} /> 記號，作為建議的計分人選。</p>
+
+      <SubTitle style={{ marginTop: '8px' }}>開始抽籤</SubTitle>
+      <ol className="guide-steps">
+        <li className="guide-step"><span className="guide-step-num">1.</span><span>設定總人數與綁定群組後，點選「開始抽籤」</span></li>
+        <li className="guide-step"><span className="guide-step-num">2.</span><span>逐張點擊籤卡翻牌，各隊已分配人數會即時顯示於上方</span></li>
+        <li className="guide-step"><span className="guide-step-num">3.</span><span>不滿意結果可點「回設定」調整，或「重新抽籤」重來</span></li>
+      </ol>
+    </Section>
+
     <Section title="局數記錄">
       <p className="guide-p">每局結束後可在設定面板儲存當局比分，最多保留 5 筆。紀錄可個別刪除，也會在重置時一併清除。</p>
     </Section>

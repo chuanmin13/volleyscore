@@ -1212,10 +1212,23 @@ input:focus {
   border-bottom: none;
 }
 
+.draw-group-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .draw-group-del {
   padding: 4px;
   background: transparent;
   color: var(--text-muted);
+}
+
+.draw-group-score-check {
+  width: 16px;
+  height: 16px;
+  accent-color: #ffb300;
+  cursor: pointer;
 }
 
 .draw-add-group-form {
@@ -1265,6 +1278,15 @@ input:focus {
   justify-content: center;
 }
 
+.draw-group-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  color: #ffb300;
+  font-size: var(--text-xs);
+}
+
 .draw-error {
   color: var(--energy);
   font-size: var(--text-sm);
@@ -1296,6 +1318,7 @@ input:focus {
 }
 
 .draw-lot {
+  position: relative;
   aspect-ratio: 1;
   border-radius: 10px;
   background: var(--bg-surface);
@@ -1341,6 +1364,51 @@ input:focus {
   0% { transform: rotateY(0deg); }
   50% { transform: rotateY(90deg); }
   100% { transform: rotateY(0deg); }
+}
+
+.draw-lot--scorer {
+  border-color: #ffcf40;
+  box-shadow: 0 0 6px 1px rgba(255, 200, 60, 0.5);
+  opacity: 1;
+  z-index: 1;
+}
+
+.draw-lot--scorer:not(.draw-lot--revealed) {
+  animation: draw-lot-scorer-burst 0.6s ease-out;
+}
+
+.draw-lot--revealed.draw-lot--scorer {
+  animation: draw-lot-flip 0.4s ease, draw-lot-scorer-burst 0.6s ease-out 0.4s;
+}
+
+@keyframes draw-lot-scorer-burst {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 6px 1px rgba(255, 200, 60, 0.5);
+  }
+  40% {
+    transform: scale(1.22);
+    box-shadow: 0 0 26px 10px rgba(255, 200, 60, 1), 0 0 45px 18px rgba(255, 200, 60, 0.7);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px 1px rgba(255, 200, 60, 0.5);
+  }
+}
+
+.draw-lot-scorer-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffe27a, #ffb300);
+  color: #3a2600;
+  box-shadow: 0 0 6px rgba(255, 179, 0, 0.9);
 }
 
 .settings-apply {
