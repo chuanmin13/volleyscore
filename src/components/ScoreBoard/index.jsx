@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import ConfirmModal from '../ConfirmModal'
 import Toast from '../Toast'
 import Icon from '../Icon'
@@ -17,6 +17,12 @@ const INITIAL_OFFLINE_SCORE = () => {
 const INITIAL_OFFLINE_TEAMS = {
   hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd', showTeamNames: false,
 }
+
+const WIN_SCORE = 25
+// 只差 1 分即局末點（例：23:24、20:24、25:26）
+const isSetPoint = (s, o) => s - o >= 1 && s >= WIN_SCORE - 1
+// 已達成結束比賽條件（領先方 ≥25 分且分差 ≥2）
+const isMatchEnd = (s, o) => s - o >= 2 && s >= WIN_SCORE
 
 const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
   useWakeLock()
@@ -43,11 +49,32 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [drawOpen, setDrawOpen] = useState(false)
   const [toast, setToast] = useState(false)
+  const [setPointSound, setSetPointSound] = useState(() => localStorage.getItem('setPointSound') !== 'false')
 
   const score = isOnline ? room.roomData.score : offlineScore
   const teams = isOnline ? room.roomData.teams : offlineTeams
   const records = isOnline ? (room.roomData.records || []) : offlineRecords
   const roomCode = isOnline ? room.roomCode : null
+  const matchEnded = isMatchEnd(score.host, score.guest) || isMatchEnd(score.guest, score.host)
+
+  const handleSetPointSoundChange = (val) => {
+    setSetPointSound(val)
+    localStorage.setItem('setPointSound', String(val))
+  }
+
+  const whistleRef = useRef(null)
+  const prevScoreRef = useRef(score)
+  useEffect(() => {
+    const prev = prevScoreRef.current
+    const wasSetPoint = isSetPoint(prev.host, prev.guest) || isSetPoint(prev.guest, prev.host)
+    const isNowSetPoint = isSetPoint(score.host, score.guest) || isSetPoint(score.guest, score.host)
+    if (setPointSound && isNowSetPoint && !wasSetPoint) {
+      if (!whistleRef.current) whistleRef.current = new Audio('/sounds/whistle.mp3')
+      whistleRef.current.currentTime = 0
+      whistleRef.current.play().catch(() => {})
+    }
+    prevScoreRef.current = score
+  }, [score, score.host, score.guest, setPointSound])
 
   const handleAdd = (team) => {
     if (isOnline) {
@@ -186,6 +213,8 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           teams={teams}
           onApply={applySettings}
           onClose={() => setSettingsOpen(false)}
+          setPointSound={setPointSound}
+          onSetPointSoundChange={handleSetPointSoundChange}
         />
       )}
 
@@ -314,6 +343,15 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           </div>
           )
         })}
+        {canScore && matchEnded && (
+          <button
+            className="match-reset-btn"
+            onClick={() => setResetConfirm(true)}
+            aria-label="比賽結束，重設比數"
+          >
+            <Icon name="reset" size={26} />
+          </button>
+        )}
       </div>
 
       {canScore && (

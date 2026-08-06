@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 const PRESET_COLORS = ['#cd2424', '#244ecd', '#1f8f1f', '#e68907', '#7b2d8b', '#1a1a1a']
 
-const SettingsOverlay = ({ teams, onApply, onClose }) => {
+const SettingsOverlay = ({ teams, onApply, onClose, setPointSound, onSetPointSoundChange }) => {
   const [form, setForm] = useState({ ...teams })
 
   const handleApply = () => {
@@ -48,6 +48,14 @@ const SettingsOverlay = ({ teams, onApply, onClose }) => {
             type="checkbox"
             checked={!!form.showTeamNames}
             onChange={e => setForm(f => ({ ...f, showTeamNames: e.target.checked }))}
+          />
+        </div>
+        <div className="settings-row settings-row--toggle">
+          <label>賽末點提示音</label>
+          <input
+            type="checkbox"
+            checked={!!setPointSound}
+            onChange={e => onSetPointSoundChange(e.target.checked)}
           />
         </div>
         <div className="settings-actions">

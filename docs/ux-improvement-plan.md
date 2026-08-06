@@ -1207,11 +1207,11 @@ const [dragOffset, setDragOffset] = useState(null) // { team, dx, dy }
 
 ---
 
-## 第六輪修改（待實作，2026-06-23）
+## 第六輪修改（2026-06-23）
 
 ---
 
-### 1. 設定 + 操作列整合（Header 下方 Control Panel）
+### 1. 設定 + 操作列整合（Header 下方 Control Panel）✅
 
 **問題：**
 - 右上角 ⚙ 開設定、左下角 FAB 開儲存/紀錄/重設，兩個入口造成認知分散
