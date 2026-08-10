@@ -360,7 +360,7 @@ const DrawTeamsModal = ({ onClose }) => {
                 <button
                   key={l.id}
                   className={`draw-lot${l.revealed ? ' draw-lot--revealed' : ''}${l.revealed && l.isScorer ? ' draw-lot--scorer' : ''}`}
-                  style={l.revealed ? { backgroundColor: TEAM_COLORS[l.team] } : { backgroundColor: '#22222260' }}
+                  style={l.revealed ? { backgroundColor: TEAM_COLORS[l.team] } : { backgroundColor: '#ffffff60' }}
                   onClick={() => !l.revealed && revealLot(l.id)}
                 >
                   {l.revealed
