@@ -49,7 +49,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [drawOpen, setDrawOpen] = useState(false)
   const [toast, setToast] = useState(false)
-  const [setPointSound, setSetPointSound] = useState(() => localStorage.getItem('setPointSound') !== 'false')
+  const [setPointSound, setSetPointSound] = useState(() => localStorage.getItem('setPointSound') === 'true')
 
   const score = isOnline ? room.roomData.score : offlineScore
   const teams = isOnline ? room.roomData.teams : offlineTeams
@@ -254,13 +254,12 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
         <div className="room-badge-left">
           {isOnline && (
             <button className="room-badge-code btn" onClick={() => setShowRoomCodeModal(true)}>
-              <Icon name="qrcode" size={14} />房間碼：{roomCode}
+              房間碼：<span style={{ color: '#f9c784', display: 'flex', alignItems: 'center' }}>{roomCode}<Icon name="qrcode" size={18} /></span>
             </button>
           )}
           {!isOnline && (
             <span className="ctrl-room-code">快速開始</span>
           )}
-          <button onClick={onShowGuide} className="btn help-btn" aria-label="使用說明">?</button>
         </div>
         <div className="room-badge-actions">
           {canScore && (
@@ -281,6 +280,9 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
               </span>
               <span className="score-switch-label">{canScore ? '計分中' : '純顯示'}</span>
             </span>
+          </button>
+          <button onClick={() => setDrawOpen(true)} className="draw-btn" aria-label="抽籤分隊">
+            <Icon name="roulette" size={24} />
           </button>
           <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開">
             <Icon name="leave" size={22} />
@@ -364,7 +366,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           panelOpen={panelOpen}
           onPanelClose={() => setPanelOpen(false)}
           onSettingsOpen={() => { setSettingsOpen(true); setPanelOpen(false) }}
-          onDrawOpen={() => { setDrawOpen(true); setPanelOpen(false) }}
+          onShowGuide={() => { onShowGuide(); setPanelOpen(false) }}
         />
       )}
 
