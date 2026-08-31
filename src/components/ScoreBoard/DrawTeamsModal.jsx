@@ -59,12 +59,12 @@ const withBackEmoji = (arr) => {
   return arr.map((l, i) => ({ ...l, backEmoji: emojiPool[i] }))
 }
 
-const composeLabel = (l) => {
-  const parts = []
-  if (l.male > 0) parts.push(`${l.male}♂`)
-  if (l.female > 0) parts.push(`${l.female}♀`)
-  return parts.join('')
-}
+const GenderCount = ({ male, female }) => (
+  <>
+    {male > 0 && <>{male}<span className="draw-gender-symbol">♂</span></>}
+    {female > 0 && <>{female}<span className="draw-gender-symbol">♀</span></>}
+  </>
+)
 
 // 隊伍目標人數：total 平均分給 3 隊，除不盡的餘數隨機補給其中幾隊（不固定補同一隊）
 const computeQuotas = (total) => {
@@ -364,7 +364,7 @@ const DrawTeamsModal = ({ onClose, drawConfig, onDrawConfigChange }) => {
       {l.revealed
         ? <span className="draw-lot-team">{l.team}</span>
         : <span className="draw-lot-back-emoji">{l.backEmoji}</span>}
-      {(l.male + l.female) > 1 && <span className="draw-lot-size">{composeLabel(l)} 一組</span>}
+      {(l.male + l.female) > 1 && <span className="draw-lot-size"><GenderCount male={l.male} female={l.female} /></span>}
       {l.revealed && l.isScorer && (
         <span className="draw-lot-scorer-badge" aria-label="計分">
           <Icon name="pencil" size={12} />
@@ -380,20 +380,22 @@ const DrawTeamsModal = ({ onClose, drawConfig, onDrawConfigChange }) => {
 
         {phase === 'setup' && (
           <>
-            <div className="settings-row draw-total-row">
-              <label className="draw-gender-label">♂</label>
-              <div className="draw-stepper">
-                <button className="btn draw-stepper-btn" onClick={() => setMaleTotal(t => Math.max(0, t - 1))}>−</button>
-                <span className="draw-stepper-value">{maleTotal}</span>
-                <button className="btn draw-stepper-btn" onClick={() => setMaleTotal(t => t + 1)}>+</button>
+            <div className="draw-gender-row">
+              <div className="settings-row draw-total-row">
+                <label className="draw-gender-label">♂</label>
+                <div className="draw-stepper">
+                  <button className="btn draw-stepper-btn" onClick={() => setMaleTotal(t => Math.max(0, t - 1))}>−</button>
+                  <span className="draw-stepper-value">{maleTotal}</span>
+                  <button className="btn draw-stepper-btn" onClick={() => setMaleTotal(t => t + 1)}>+</button>
+                </div>
               </div>
-            </div>
-            <div className="settings-row draw-total-row">
-              <label className="draw-gender-label">♀</label>
-              <div className="draw-stepper">
-                <button className="btn draw-stepper-btn" onClick={() => setFemaleTotal(t => Math.max(0, t - 1))}>−</button>
-                <span className="draw-stepper-value">{femaleTotal}</span>
-                <button className="btn draw-stepper-btn" onClick={() => setFemaleTotal(t => t + 1)}>+</button>
+              <div className="settings-row draw-total-row">
+                <label className="draw-gender-label">♀</label>
+                <div className="draw-stepper">
+                  <button className="btn draw-stepper-btn" onClick={() => setFemaleTotal(t => Math.max(0, t - 1))}>−</button>
+                  <span className="draw-stepper-value">{femaleTotal}</span>
+                  <button className="btn draw-stepper-btn" onClick={() => setFemaleTotal(t => t + 1)}>+</button>
+                </div>
               </div>
             </div>
 
@@ -402,26 +404,20 @@ const DrawTeamsModal = ({ onClose, drawConfig, onDrawConfigChange }) => {
               <button className={`btn draw-mode-btn${customQuota ? ' active' : ''}`} onClick={enableCustomQuota}>自訂各隊人數</button>
             </div>
 
-            {customQuota && (
-              <div className="draw-team-sizes">
-                {TEAM_KEYS.map(k => (
-                  <div key={k} className="settings-row draw-total-row">
-                    <label style={{ color: TEAM_COLORS[k] }}>{k} 隊人數</label>
-                    <div className="draw-stepper">
-                      <button className="btn draw-stepper-btn" onClick={() => setTeamSize(k, teamSizes[k] - 1)}>−</button>
-                      <span className="draw-stepper-value">{teamSizes[k]}</span>
-                      <button className="btn draw-stepper-btn" onClick={() => setTeamSize(k, teamSizes[k] + 1)}>+</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
             <div className="draw-quota-row">
               {TEAM_KEYS.map((k, i) => (
-                <span key={k} className="draw-quota-badge" style={{ backgroundColor: TEAM_COLORS[k] }}>
-                  {k} 隊 {validation.targetSizes[i]} 人（♂{validation.maleQuotas[i]} ♀{validation.femaleQuotas[i]}）
-                </span>
+                <div key={k} className="draw-quota-badge" style={{ backgroundColor: TEAM_COLORS[k] }}>
+                  {customQuota && (
+                    <button className="btn draw-quota-badge-btn" aria-label={`${k} 隊減少`} onClick={() => setTeamSize(k, teamSizes[k] - 1)}>−</button>
+                  )}
+                  <div className="draw-quota-badge-text">
+                    <div className="draw-quota-badge-main">{k} 隊 {validation.targetSizes[i]} 人</div>
+                    <div className="draw-quota-badge-sub"><GenderCount male={validation.maleQuotas[i]} female={validation.femaleQuotas[i]} /></div>
+                  </div>
+                  {customQuota && (
+                    <button className="btn draw-quota-badge-btn" aria-label={`${k} 隊增加`} onClick={() => setTeamSize(k, teamSizes[k] + 1)}>+</button>
+                  )}
+                </div>
               ))}
             </div>
 
@@ -436,7 +432,7 @@ const DrawTeamsModal = ({ onClose, drawConfig, onDrawConfigChange }) => {
               {groups.map(g => (
                 <div key={g.id} className="draw-group-row">
                   <span className="draw-group-desc">
-                    {composeLabel(g)}・{g.mode === 'fixed' ? `固定 ${g.team} 隊` : '派代表抽籤'}
+                    <GenderCount male={g.male} female={g.female} />・{g.mode === 'fixed' ? `固定 ${g.team} 隊` : '派代表抽籤'}
                     {g.scoreDesignated && (
                       <span className="draw-group-score-badge">
                         <Icon name="pencil" size={11} />指定計分
@@ -509,7 +505,7 @@ const DrawTeamsModal = ({ onClose, drawConfig, onDrawConfigChange }) => {
 
             <div className="settings-actions">
               <button className="btn settings-cancel" onClick={onClose}>取消</button>
-              <button className="btn settings-apply" disabled={!validation.ok} onClick={startDraw}>開始抽籤</button>
+              <button className="btn settings-apply" disabled={!validation.ok} onClick={startDraw}>開始抽籤（{totalPeople}）</button>
             </div>
           </>
         )}
@@ -535,7 +531,7 @@ const DrawTeamsModal = ({ onClose, drawConfig, onDrawConfigChange }) => {
                       style={{ backgroundColor: TEAM_COLORS[l.team] }}
                     >
                       <span className="draw-lot-team">{l.team}</span>
-                      {(l.male + l.female) > 1 && <span className="draw-lot-size">{composeLabel(l)} 固定</span>}
+                      {(l.male + l.female) > 1 && <span className="draw-lot-size"><GenderCount male={l.male} female={l.female} /> 固定</span>}
                       {l.isScorer && (
                         <span className="draw-lot-scorer-badge" aria-label="計分">
                           <Icon name="pencil" size={12} />
