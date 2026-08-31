@@ -219,7 +219,11 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
       )}
 
       {drawOpen && (
-        <DrawTeamsModal onClose={() => setDrawOpen(false)} />
+        <DrawTeamsModal
+          onClose={() => setDrawOpen(false)}
+          drawConfig={isOnline ? room.roomData.drawConfig : null}
+          onDrawConfigChange={isOnline ? room.updateDrawConfig : undefined}
+        />
       )}
 
       {leaveConfirm && (

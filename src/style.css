@@ -1147,6 +1147,12 @@ input:focus {
   justify-content: space-between;
 }
 
+.draw-gender-label {
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+  font-weight: 400;
+}
+
 .draw-stepper {
   display: flex;
   align-items: center;
@@ -1169,6 +1175,17 @@ input:focus {
   text-align: center;
   font-size: var(--text-lg);
   font-weight: 700;
+}
+
+.draw-quota-mode-toggle {
+  margin-bottom: 14px;
+}
+
+.draw-team-sizes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
 .draw-quota-row {
@@ -1326,6 +1343,16 @@ input:focus {
   font-size: var(--text-sm);
   font-weight: 700;
   color: #fff;
+}
+
+.draw-lots-section {
+  margin-bottom: 6px;
+}
+
+.draw-lots-section-title {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0 0 8px;
 }
 
 .draw-lots-grid {

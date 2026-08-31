@@ -9,6 +9,7 @@ const initialRoomState = {
   score: { host: 0, guest: 0 },
   teams: { hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd' },
   records: [],
+  drawConfig: { maleTotal: 18, femaleTotal: 0, customQuota: false, teamSizes: { A: 6, B: 6, C: 6 }, groups: [] },
 }
 
 export const useRoom = () => {
@@ -75,6 +76,12 @@ export const useRoom = () => {
     update(ref(db, `rooms/${roomCode}/teams`), teamsPartial)
   }
 
+  // 抽籤分隊設定（人數、群組），不含抽籤結果
+  const updateDrawConfig = drawConfigPartial => {
+    if (!roomCode) return
+    update(ref(db, `rooms/${roomCode}/drawConfig`), drawConfigPartial)
+  }
+
   // 局數紀錄
   const saveRecord = () => {
     if (!roomCode) return
@@ -103,6 +110,7 @@ export const useRoom = () => {
     subScore,
     resetScore,
     updateTeams,
+    updateDrawConfig,
     saveRecord,
     deleteRecord,
   }

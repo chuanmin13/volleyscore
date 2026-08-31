@@ -113,9 +113,10 @@ const TabOther = () => (
     </Section>
 
     <Section title="抽籤分隊">
-      <p className="guide-p">在設定面板開啟「抽籤分隊」，輸入總人數後會自動平均分成三隊，也可依需求綁定群組。</p>
+      <p className="guide-p">在設定面板開啟「抽籤分隊」，分別輸入 ♂／♀ 人數後會自動平均分成三隊，且各隊會依比例分配到男女生，不會集中在同一隊。若各隊人數需要不均分配，可切換「自訂各隊人數」自行指定 A/B/C 隊各要抽幾人。</p>
 
       <SubTitle>綁定群組</SubTitle>
+      <p className="guide-p">新增群組時可分別指定男、女人數（例如 4 男 1 女），群組整組一定會一起分到同一隊。</p>
       <ul className="guide-steps">
         <li className="guide-step"><span className="guide-step-num">．</span><span>派代表抽籤：整組人一起隨機分到某一隊，抽籤時以一張籤卡代表整組</span></li>
         <li className="guide-step"><span className="guide-step-num">．</span><span>固定隊伍：直接指定這組人進某一隊，不參與抽籤</span></li>
@@ -126,10 +127,11 @@ const TabOther = () => (
 
       <SubTitle style={{ marginTop: '8px' }}>開始抽籤</SubTitle>
       <ol className="guide-steps">
-        <li className="guide-step"><span className="guide-step-num">1.</span><span>設定總人數與綁定群組後，點選「開始抽籤」</span></li>
-        <li className="guide-step"><span className="guide-step-num">2.</span><span>逐張點擊籤卡翻牌，各隊已分配人數會即時顯示於上方</span></li>
+        <li className="guide-step"><span className="guide-step-num">1.</span><span>設定男女人數與綁定群組後，點選「開始抽籤」</span></li>
+        <li className="guide-step"><span className="guide-step-num">2.</span><span>抽籤結果分「群組卡」「♂ 個人卡」「♀ 個人卡」三區，逐張點擊翻牌，各隊已分配人數會即時顯示於上方；沒有內容的區塊不會顯示</span></li>
         <li className="guide-step"><span className="guide-step-num">3.</span><span>不滿意結果可點「回設定」調整，或「重新抽籤」重來</span></li>
       </ol>
+      <Note>房間模式下，人數與群組設定會存在房間裡，下次重新開啟抽籤分隊會沿用上次的設定；快速開始（單機模式）則每次重新填寫。</Note>
     </Section>
 
     <Section title="局數記錄">
