@@ -1159,7 +1159,7 @@ input:focus {
 .draw-card-wrap {
   position: relative;
   width: min(92vw, 440px);
-  height: 85%;
+  height: 88%;
 }
 
 .draw-inner {
@@ -1587,7 +1587,7 @@ input:focus {
 
 /* 獨立入口沒有房間 modal 的背景卡片限制，卡片可以吃到更多畫面高度 */
 .draw-standalone .draw-card-wrap {
-  height: 90%;
+  height: 95%;
 }
 
 .settings-apply {
