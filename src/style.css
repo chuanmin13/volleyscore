@@ -91,12 +91,18 @@ button.delRecord {
     opacity: 0.8;
 }
 
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 input:focus {
     border: 2px solid #7474bf;
 }
 
 /* 記分板 */
 .scores-wrap {
+    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
@@ -105,6 +111,29 @@ input:focus {
     justify-content: center;
     align-items: center;
     gap: 5px;
+}
+
+.match-reset-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 15;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--energy);
+    color: var(--energy-fg);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.match-reset-btn:active {
+    transform: translate(-50%, -50%) scale(0.93);
 }
 
 .team-name {
@@ -262,6 +291,12 @@ input:focus {
   background: transparent;
   color: var(--text);
   border: 2px solid var(--border);
+}
+/* 抽籤分隊獨立入口 — 跟快速開始同排等重，用暖色框區分於房間相關按鈕 */
+.landing-btn--draw {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--warm);
 }
 .landing-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -453,7 +488,6 @@ input:focus {
 .room-badge-code {
   display: flex;
   align-items: center;
-  gap: 6px;
   letter-spacing: 4px;
   font-size: var(--text-base);
   font-family: 'Roboto Mono', monospace;
@@ -481,16 +515,10 @@ input:focus {
   gap: 8px;
 }
 
-.room-badge-left .help-btn {
-  width: 20px;
-  height: 20px;
-  font-size: 11px;
-}
-
 .room-badge-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .score-switch {
@@ -563,6 +591,7 @@ input:focus {
   justify-content: center;
   width: 44px;
   height: 44px;
+  margin-left: -8px;
   background: none;
   border: none;
   cursor: pointer;
@@ -1012,6 +1041,8 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* 用 padding 讓子層的百分比高度只算「安全區內」的可視範圍，避免卡片被 notch/瀏海擋住 */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 .settings-inner {
@@ -1119,14 +1150,92 @@ input:focus {
 }
 
 /* Draw Teams (抽籤分隊) */
-.draw-inner {
+/* .draw-inner 本身有 overflow-y:auto 會裁掉探出邊界的關閉按鈕，
+   所以關閉按鈕改放在這層不裁切內容的 wrapper，跟卡片變成兄弟關係。
+   高度固定在 .draw-card-wrap（用 % 而不是 vh：相對於 .settings-overlay
+   已經扣掉安全區 padding 的內容框計算，不會被 notch/瀏海擋住），
+   .draw-inner 則是填滿 wrap、自己內部捲動——不管卡片裡有多少籤卡，
+   蒙版永遠滿版、卡片大小固定不被撐開，關閉鈕位置也就永遠固定按得到 */
+.draw-card-wrap {
+  position: relative;
   width: min(92vw, 440px);
-  max-height: 85vh;
+  height: 88%;
+}
+
+.draw-inner {
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
+}
+
+.draw-close-btn {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-mid);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.draw-close-btn:hover {
+  background: var(--bg-surface);
 }
 
 .draw-total-row {
   justify-content: space-between;
+}
+
+.draw-gender-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.draw-gender-row .draw-total-row {
+  flex: 1;
+}
+
+.draw-gender-divider {
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+.draw-total-row .draw-gender-label {
+  width: auto;
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+  font-weight: 400;
+}
+
+/* ♂/♀ 是 Unicode 符號，字型內建行高比數字高很多；用 flex align-items:center
+   對齊，不靠字型基線/vertical-align 猜數值，才能在各種容器尺寸下都置中 */
+.draw-gender-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.draw-gender-count-item {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.draw-gender-symbol {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  margin-left: 1px;
 }
 
 .draw-stepper {
@@ -1153,6 +1262,10 @@ input:focus {
   font-weight: 700;
 }
 
+.draw-quota-mode-toggle {
+  margin-bottom: 14px;
+}
+
 .draw-quota-row {
   display: flex;
   gap: 8px;
@@ -1161,12 +1274,46 @@ input:focus {
 
 .draw-quota-badge {
   flex: 1;
-  text-align: center;
-  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
   border-radius: 8px;
+  color: #fff;
+}
+
+.draw-quota-badge-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.3;
+  padding: 6px 0;
+}
+
+.draw-quota-badge-main {
   font-size: var(--text-sm);
   font-weight: 700;
+  white-space: nowrap;
+}
+
+.draw-quota-badge-sub {
+  font-size: 0.65rem;
+  font-weight: 400;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.draw-quota-badge-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.25);
   color: #fff;
+  font-size: var(--text-sm);
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 .draw-groups {
@@ -1310,6 +1457,16 @@ input:focus {
   color: #fff;
 }
 
+.draw-lots-section {
+  margin-bottom: 6px;
+}
+
+.draw-lots-section-title {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
 .draw-lots-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
@@ -1351,6 +1508,7 @@ input:focus {
 
 .draw-lot-size {
   font-size: 0.6rem;
+  line-height: 1.2;
   opacity: 0.85;
   text-align: center;
 }
@@ -1409,6 +1567,27 @@ input:focus {
   background: linear-gradient(135deg, #ffe27a, #ffb300);
   color: #3a2600;
   box-shadow: 0 0 6px rgba(255, 179, 0, 0.9);
+}
+
+/* Landing 獨立入口用的抽籤分隊全螢幕頁面（非 overlay，本身就是一個畫面） */
+.draw-standalone {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-gradient);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(24px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+
+.draw-standalone-inner {
+  width: min(92vw, 440px);
+}
+
+/* 獨立入口沒有房間 modal 的背景卡片限制，卡片可以吃到更多畫面高度 */
+.draw-standalone .draw-card-wrap {
+  height: 95%;
 }
 
 .settings-apply {
@@ -1470,13 +1649,14 @@ input:focus {
   color: rgba(231, 231, 231, 0.7);
 }
 
-.help-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border);
+.draw-btn {
+  width: 33px;
+  height: 33px;
+  border: none;
+  opacity: 1;
+  transition: 0.3s;
   background: transparent;
-  color: rgba(231, 231, 231, 0.35);
+  color: rgba(231, 231, 231, 0.75);
   font-size: 13px;
   font-weight: 700;
   font-family: 'Roboto Mono', monospace;
@@ -1488,7 +1668,7 @@ input:focus {
   transition: border-color 0.2s, color 0.2s;
 }
 
-.help-btn:hover {
+.draw-btn:hover {
   border-color: rgba(249, 199, 132, 0.5);
   color: var(--accent);
 }

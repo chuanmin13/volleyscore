@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import ConfirmModal from '../ConfirmModal'
 import Toast from '../Toast'
 import Icon from '../Icon'
@@ -6,7 +6,7 @@ import useLongPress from '../../hooks/useLongPress'
 import useWakeLock from '../../hooks/useWakeLock'
 import RoomCodeModal from './RoomCodeModal'
 import SettingsOverlay from './SettingsOverlay'
-import DrawTeamsModal from './DrawTeamsModal'
+import DrawTeamsModal from '../DrawTeams/DrawTeamsModal'
 import ControlPanel from './ControlPanel'
 
 const INITIAL_OFFLINE_SCORE = () => {
@@ -17,6 +17,12 @@ const INITIAL_OFFLINE_SCORE = () => {
 const INITIAL_OFFLINE_TEAMS = {
   hostName: '', guestName: '', hostColor: '#f24c00', guestColor: '#244ecd', showTeamNames: false,
 }
+
+const WIN_SCORE = 25
+// 只差 1 分即局末點（例：23:24、20:24、25:26）
+const isSetPoint = (s, o) => s - o >= 1 && s >= WIN_SCORE - 1
+// 已達成結束比賽條件（領先方 ≥25 分且分差 ≥2）
+const isMatchEnd = (s, o) => s - o >= 2 && s >= WIN_SCORE
 
 const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
   useWakeLock()
@@ -43,11 +49,32 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [drawOpen, setDrawOpen] = useState(false)
   const [toast, setToast] = useState(false)
+  const [setPointSound, setSetPointSound] = useState(() => localStorage.getItem('setPointSound') === 'true')
 
   const score = isOnline ? room.roomData.score : offlineScore
   const teams = isOnline ? room.roomData.teams : offlineTeams
   const records = isOnline ? (room.roomData.records || []) : offlineRecords
   const roomCode = isOnline ? room.roomCode : null
+  const matchEnded = isMatchEnd(score.host, score.guest) || isMatchEnd(score.guest, score.host)
+
+  const handleSetPointSoundChange = (val) => {
+    setSetPointSound(val)
+    localStorage.setItem('setPointSound', String(val))
+  }
+
+  const whistleRef = useRef(null)
+  const prevScoreRef = useRef(score)
+  useEffect(() => {
+    const prev = prevScoreRef.current
+    const wasSetPoint = isSetPoint(prev.host, prev.guest) || isSetPoint(prev.guest, prev.host)
+    const isNowSetPoint = isSetPoint(score.host, score.guest) || isSetPoint(score.guest, score.host)
+    if (setPointSound && isNowSetPoint && !wasSetPoint) {
+      if (!whistleRef.current) whistleRef.current = new Audio('/sounds/whistle.mp3')
+      whistleRef.current.currentTime = 0
+      whistleRef.current.play().catch(() => {})
+    }
+    prevScoreRef.current = score
+  }, [score, score.host, score.guest, setPointSound])
 
   const handleAdd = (team) => {
     if (isOnline) {
@@ -186,11 +213,17 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           teams={teams}
           onApply={applySettings}
           onClose={() => setSettingsOpen(false)}
+          setPointSound={setPointSound}
+          onSetPointSoundChange={handleSetPointSoundChange}
         />
       )}
 
       {drawOpen && (
-        <DrawTeamsModal onClose={() => setDrawOpen(false)} />
+        <DrawTeamsModal
+          onClose={() => setDrawOpen(false)}
+          drawConfig={isOnline ? room.roomData.drawConfig : null}
+          onDrawConfigChange={isOnline ? room.updateDrawConfig : undefined}
+        />
       )}
 
       {leaveConfirm && (
@@ -225,13 +258,12 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
         <div className="room-badge-left">
           {isOnline && (
             <button className="room-badge-code btn" onClick={() => setShowRoomCodeModal(true)}>
-              <Icon name="qrcode" size={14} />房間碼：{roomCode}
+              房間碼：<span style={{ color: '#f9c784', display: 'flex', alignItems: 'center' }}>{roomCode}<Icon name="qrcode" size={18} /></span>
             </button>
           )}
           {!isOnline && (
             <span className="ctrl-room-code">快速開始</span>
           )}
-          <button onClick={onShowGuide} className="btn help-btn" aria-label="使用說明">?</button>
         </div>
         <div className="room-badge-actions">
           {canScore && (
@@ -252,6 +284,9 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
               </span>
               <span className="score-switch-label">{canScore ? '計分中' : '純顯示'}</span>
             </span>
+          </button>
+          <button onClick={() => setDrawOpen(true)} className="draw-btn" aria-label="抽籤分隊">
+            <Icon name="roulette" size={24} />
           </button>
           <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開">
             <Icon name="leave" size={22} />
@@ -314,6 +349,15 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           </div>
           )
         })}
+        {canScore && matchEnded && (
+          <button
+            className="match-reset-btn"
+            onClick={() => setResetConfirm(true)}
+            aria-label="比賽結束，重設比數"
+          >
+            <Icon name="reset" size={26} />
+          </button>
+        )}
       </div>
 
       {canScore && (
@@ -326,7 +370,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           panelOpen={panelOpen}
           onPanelClose={() => setPanelOpen(false)}
           onSettingsOpen={() => { setSettingsOpen(true); setPanelOpen(false) }}
-          onDrawOpen={() => { setDrawOpen(true); setPanelOpen(false) }}
+          onShowGuide={() => { onShowGuide(); setPanelOpen(false) }}
         />
       )}
 

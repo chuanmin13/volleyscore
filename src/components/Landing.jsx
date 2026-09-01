@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import LoadingOverlay from './LoadingOverlay'
 import Icon from './Icon'
 import JoinForm from './JoinForm'
+import Toast from './Toast'
 
 const PwaBanner = ({ onShowChange }) => {
   const [show, setShow] = useState(() => {
@@ -54,7 +55,7 @@ const PwaBanner = ({ onShowChange }) => {
   )
 }
 
-const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError, onShowGuide }) => {
+const Landing = ({ onCreateRoom, onJoinRoom, onOffline, onOpenDraw, joinError, onClearError, onShowGuide, roomGoneNotice }) => {
   const [view, setView] = useState('main') // 'main' | 'join'
   const [creating, setCreating] = useState(false)
   const [joining, setJoining] = useState(false)
@@ -62,6 +63,15 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError,
     if (window.matchMedia('(display-mode: standalone)').matches) return false
     return !sessionStorage.getItem('pwa-banner-dismissed')
   })
+  // 房間在使用中被移除、被 App.jsx 導回這裡時，掛載當下 roomGoneNotice 就已經是 true，
+  // 短暫提示一下原因後自動消失
+  const [roomGoneToast, setRoomGoneToast] = useState(() => roomGoneNotice)
+
+  useEffect(() => {
+    if (!roomGoneToast) return
+    const timer = setTimeout(() => setRoomGoneToast(false), 2500)
+    return () => clearTimeout(timer)
+  }, [roomGoneToast])
 
   const handleCreate = async () => {
     setCreating(true)
@@ -119,12 +129,20 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError,
         <div className="landing-or">/</div>
 
         <div className="landing-group">
-          <button
-            className="btn landing-btn landing-btn--offline"
-            onClick={onOffline}
-          >
-            快速開始
-          </button>
+          <div className="landing-actions">
+            <button
+              className="btn landing-btn landing-btn--offline"
+              onClick={onOffline}
+            >
+              快速開始
+            </button>
+            <button
+              className="btn landing-btn landing-btn--draw"
+              onClick={onOpenDraw}
+            >
+              抽籤分隊
+            </button>
+          </div>
         </div>
       </div>
 
@@ -138,6 +156,7 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, joinError, onClearError,
         <button onClick={onShowGuide} className="btn landing-credit-link landing-credit-btn">使用說明</button>
       </span>
       <button onClick={onShowGuide} className="btn help-btn landing-help" aria-label="使用說明">?</button>
+      <Toast visible={roomGoneToast} message="房間已結束，請重新建立或加入房間" />
     </div>
   )
 }
