@@ -91,6 +91,11 @@ button.delRecord {
     opacity: 0.8;
 }
 
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 input:focus {
     border: 2px solid #7474bf;
 }
@@ -286,6 +291,12 @@ input:focus {
   background: transparent;
   color: var(--text);
   border: 2px solid var(--border);
+}
+/* 抽籤分隊獨立入口 — 跟快速開始同排等重，用暖色框區分於房間相關按鈕 */
+.landing-btn--draw {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--warm);
 }
 .landing-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -1137,10 +1148,39 @@ input:focus {
 }
 
 /* Draw Teams (抽籤分隊) */
-.draw-inner {
+/* .draw-inner 本身有 overflow-y:auto 會裁掉探出邊界的關閉按鈕，
+   所以關閉按鈕改放在這層不裁切內容的 wrapper，跟卡片變成兄弟關係 */
+.draw-card-wrap {
+  position: relative;
   width: min(92vw, 440px);
+}
+
+.draw-inner {
+  width: 100%;
   max-height: 85vh;
   overflow-y: auto;
+}
+
+.draw-close-btn {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-mid);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.draw-close-btn:hover {
+  background: var(--bg-surface);
 }
 
 .draw-total-row {
@@ -1149,11 +1189,18 @@ input:focus {
 
 .draw-gender-row {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
 
 .draw-gender-row .draw-total-row {
   flex: 1;
+}
+
+.draw-gender-divider {
+  color: var(--text-muted);
+  font-size: var(--text-lg);
+  flex-shrink: 0;
 }
 
 .draw-total-row .draw-gender-label {
@@ -1163,9 +1210,25 @@ input:focus {
   font-weight: 400;
 }
 
+/* ♂/♀ 是 Unicode 符號，字型內建行高比數字高很多；用 flex align-items:center
+   對齊，不靠字型基線/vertical-align 猜數值，才能在各種容器尺寸下都置中 */
+.draw-gender-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.draw-gender-count-item {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
 .draw-gender-symbol {
-  display: inline-block;
-  vertical-align: -0.05em;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  margin-left: 1px;
 }
 
 .draw-stepper {
@@ -1208,7 +1271,7 @@ input:focus {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 6px 4px;
+  padding: 0;
   border-radius: 8px;
   color: #fff;
 }
@@ -1218,17 +1281,20 @@ input:focus {
   flex-direction: column;
   align-items: center;
   line-height: 1.3;
+  padding: 6px 0;
 }
 
 .draw-quota-badge-main {
   font-size: var(--text-sm);
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .draw-quota-badge-sub {
   font-size: 0.65rem;
   font-weight: 400;
   opacity: 0.75;
+  white-space: nowrap;
 }
 
 .draw-quota-badge-btn {
@@ -1494,6 +1560,23 @@ input:focus {
   background: linear-gradient(135deg, #ffe27a, #ffb300);
   color: #3a2600;
   box-shadow: 0 0 6px rgba(255, 179, 0, 0.9);
+}
+
+/* Landing 獨立入口用的抽籤分隊全螢幕頁面（非 overlay，本身就是一個畫面） */
+.draw-standalone {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-gradient);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 12px;
+  overflow-y: auto;
+}
+
+.draw-standalone-inner {
+  width: min(92vw, 440px);
 }
 
 .settings-apply {

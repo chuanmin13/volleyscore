@@ -6,7 +6,7 @@ import useLongPress from '../../hooks/useLongPress'
 import useWakeLock from '../../hooks/useWakeLock'
 import RoomCodeModal from './RoomCodeModal'
 import SettingsOverlay from './SettingsOverlay'
-import DrawTeamsModal from './DrawTeamsModal'
+import DrawTeamsModal from '../DrawTeams/DrawTeamsModal'
 import ControlPanel from './ControlPanel'
 
 const INITIAL_OFFLINE_SCORE = () => {

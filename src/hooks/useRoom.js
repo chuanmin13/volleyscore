@@ -12,7 +12,10 @@ const initialRoomState = {
   drawConfig: { maleTotal: 18, femaleTotal: 0, customQuota: false, teamSizes: { A: 6, B: 6, C: 6 }, groups: [] },
 }
 
-export const useRoom = () => {
+// onRoomMissing：房間在使用中被移除時呼叫，讓上層（App.jsx）決定要怎麼導回 Landing。
+// 用 callback 而非內部 state + 額外 effect，因為 setState 只能在這個既有的
+// onValue 訂閱 callback 裡直接呼叫，不能另外開一個 effect 去監聽衍生出來的 state
+export const useRoom = onRoomMissing => {
   const [roomCode, setRoomCode] = useState(null)
   const [roomData, setRoomData] = useState(initialRoomState)
 
@@ -39,14 +42,16 @@ export const useRoom = () => {
     updateRoomData(snapshot.val())
   }
 
-  // 監聽 Firebase 變更（顯示端與控制端共用）
+  // 監聽 Firebase 變更（顯示端與控制端共用）；房間在使用中被移除時通知上層，
+  // 不然畫面會卡在最後一次收到的舊資料
   useEffect(() => {
     if (!roomCode) return
     const unsubscribe = onValue(ref(db, `rooms/${roomCode}`), snapshot => {
       if (snapshot.exists()) updateRoomData(snapshot.val())
+      else onRoomMissing?.()
     })
     return () => unsubscribe()
-  }, [roomCode])
+  }, [roomCode, onRoomMissing])
 
   // 比分更新：直接寫 score 子路徑，避免整包覆蓋
   const addScore = (team) => {
