@@ -17,6 +17,7 @@ const DrawTeamsStandalone = ({ onExit }) => {
         )}
         <div className="settings-inner draw-standalone-inner draw-inner">
           <h3>抽籤分隊</h3>
+          {draw.phase === 'setup' && <p className="draw-standalone-notice">此模式不會保存設定，離開或重新整理後需要重新輸入</p>}
           {draw.phase === 'setup' && <DrawSetupForm draw={draw} onCancel={onExit} />}
           {draw.phase === 'draw' && <DrawResultBoard draw={draw} />}
         </div>

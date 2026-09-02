@@ -1,8 +1,12 @@
+import { useState } from 'react'
 import Icon from '../Icon'
 import GenderCount from './GenderCount'
+import ConfirmModal from '../ConfirmModal'
 import { TEAM_KEYS, TEAM_COLORS } from './drawEngine'
 
 const DrawResultBoard = ({ draw }) => {
+  const [redrawConfirm, setRedrawConfirm] = useState(false)
+
   const renderLotCard = (l) => (
     <button
       key={l.id}
@@ -24,6 +28,16 @@ const DrawResultBoard = ({ draw }) => {
 
   return (
     <>
+      {redrawConfirm && (
+        <ConfirmModal
+          message="重新抽籤將洗掉目前的抽籤結果，確定要重來？"
+          confirmLabel="重新抽籤"
+          cancelLabel="取消"
+          onConfirm={() => { setRedrawConfirm(false); draw.startDraw() }}
+          onCancel={() => setRedrawConfirm(false)}
+        />
+      )}
+
       <div className="draw-tally">
         {TEAM_KEYS.map((k, i) => (
           <span key={k} className="draw-tally-badge" style={{ backgroundColor: TEAM_COLORS[k] }}>
@@ -76,7 +90,7 @@ const DrawResultBoard = ({ draw }) => {
 
       <div className="settings-actions">
         <button className="btn settings-cancel" onClick={draw.backToSetup}>回設定</button>
-        <button className="btn settings-apply" onClick={draw.startDraw}>重新抽籤</button>
+        <button className="btn settings-apply-danger" onClick={() => setRedrawConfirm(true)}>重新抽籤</button>
       </div>
     </>
   )

@@ -4,7 +4,7 @@ const JoinForm = ({ onJoin, onBack, joinError, disabled }) => {
   return (
     <div className="join-form">
       <p className="join-label">輸入房間碼</p>
-      <OtpInput key={joinError} onComplete={onJoin} error={!!joinError} disabled={disabled} />
+      <OtpInput onComplete={onJoin} error={!!joinError} disabled={disabled} />
       {joinError && <p className="join-error">{joinError}</p>}
       {disabled && <p className="join-label">加入中…</p>}
       <button

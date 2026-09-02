@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Icon from './Icon'
 
 const TABS = ['遠端模式', '單機模式', '其他操作', '常見問題']
@@ -43,14 +43,14 @@ const TabRemote = () => (
 
     <SubTitle>建立房間</SubTitle>
     <ol className="guide-steps">
-      <li className="guide-step"><span className="guide-step-num">1.</span><span>點選「建立房間」，系統自動產生 4 位數代碼與網頁 QR code</span></li>
-      <li className="guide-step"><span className="guide-step-num">2.</span><span>將代碼分享給其他裝置加入</span></li>
+      <li className="guide-step"><span className="guide-step-num">1.</span><span>點選「建立房間」，系統自動產生 4 位數代碼，並彈出房間卡顯示對應的 QR code</span></li>
+      <li className="guide-step"><span className="guide-step-num">2.</span><span>讓其他裝置掃描 QR code 即可直接加入房間，或分享 4 位數代碼讓對方手動輸入</span></li>
     </ol>
 
     <SubTitle style={{ marginTop: '8px' }}>加入房間</SubTitle>
     <ol className="guide-steps">
-      <li className="guide-step"><span className="guide-step-num">1.</span><span>點選「加入房間」</span></li>
-      <li className="guide-step"><span className="guide-step-num">2.</span><span>輸入 4 位數代碼</span></li>
+      <li className="guide-step"><span className="guide-step-num">1.</span><span>掃描房間 QR code 可直接加入，不需其他步驟</span></li>
+      <li className="guide-step"><span className="guide-step-num">2.</span><span>沒有 QR code 時，點選「加入房間」並輸入 4 位數代碼</span></li>
     </ol>
 
     <Note>各裝置不需在同一個 Wi-Fi，只要各自有網路連線即可。</Note>
@@ -118,17 +118,17 @@ const TabOther = () => (
       <SubTitle>綁定群組</SubTitle>
       <p className="guide-p">新增群組時可分別指定男、女人數（例如 4 男 1 女），群組整組一定會一起分到同一隊。</p>
       <ul className="guide-steps">
-        <li className="guide-step"><span className="guide-step-num">．</span><span>派代表抽籤：整組人一起隨機分到某一隊，抽籤時以一張籤卡代表整組</span></li>
-        <li className="guide-step"><span className="guide-step-num">．</span><span>固定隊伍：直接指定這組人進某一隊，不參與抽籤</span></li>
+        <li className="guide-step"><span className="guide-step-num">．</span><span>整組一起抽籤：整組人一起隨機分到某一隊，抽籤時以一張籤卡代表整組</span></li>
+        <li className="guide-step"><span className="guide-step-num">．</span><span>直接指定隊伍：指定這組人進某一隊，不參與抽籤</span></li>
       </ul>
 
       <SubTitle style={{ marginTop: '8px' }}>指定計分</SubTitle>
-      <p className="guide-p">已加入的「固定隊伍」群組，可點擊列表中的 <Icon name="pencil" size={12} /> 圖示，指定由這組人負責該隊計分（同一隊最多指定一組）。沒有指定的隊伍，抽籤結束後會從該隊籤卡中隨機挑一張標示 <Icon name="pencil" size={12} /> 記號，作為建議的計分人選。</p>
+      <p className="guide-p">已加入的「直接指定隊伍」群組，可點擊列表中的 <Icon name="pencil" size={12} /> 圖示，指定由這組人負責該隊計分（同一隊最多指定一組）。沒有指定的隊伍，抽籤結束後會從該隊籤卡中隨機挑一張標示 <Icon name="pencil" size={12} /> 記號，作為建議的計分人選。</p>
 
       <SubTitle style={{ marginTop: '8px' }}>開始抽籤</SubTitle>
       <ol className="guide-steps">
         <li className="guide-step"><span className="guide-step-num">1.</span><span>設定男女人數與綁定群組後，點選「開始抽籤」</span></li>
-        <li className="guide-step"><span className="guide-step-num">2.</span><span>抽籤結果分「群組卡」「♂ 個人卡」「♀ 個人卡」三區，逐張點擊翻牌，各隊已分配人數會即時顯示於上方；沒有內容的區塊不會顯示</span></li>
+        <li className="guide-step"><span className="guide-step-num">2.</span><span>抽籤結果分「群組卡」「♂ 個人卡」「♀ 個人卡」三區，逐張點擊翻牌，各隊已分配人數會即時顯示於上方</span></li>
         <li className="guide-step"><span className="guide-step-num">3.</span><span>不滿意結果可點「回設定」調整，或「重新抽籤」重來</span></li>
       </ol>
       <Note>房間模式下，人數與群組設定會存在房間裡，下次重新開啟抽籤分隊會沿用上次的設定；快速開始（單機模式）則每次重新填寫。</Note>
@@ -168,6 +168,12 @@ const TAB_CONTENT = [<TabRemote />, <TabOffline />, <TabOther />, <TabFaq />]
 
 const Guide = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState(0)
+
+  useEffect(() => {
+    const handleKeyDown = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
 
   return (
     <div className="guide-overlay">

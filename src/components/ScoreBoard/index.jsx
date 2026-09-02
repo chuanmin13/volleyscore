@@ -43,9 +43,8 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
 
 
   const [showRoomCodeModal, setShowRoomCodeModal] = useState(entry === 'create')
-  const [leaveConfirm, setLeaveConfirm] = useState(false)
-  const [resetConfirm, setResetConfirm] = useState(false)
-  const [recordsFull, setRecordsFull] = useState(false)
+  // null | 'leave' | 'reset' | 'recordsFull' —— 合成單一狀態，架構上排除同時開兩個確認框
+  const [confirmState, setConfirmState] = useState(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [drawOpen, setDrawOpen] = useState(false)
   const [toast, setToast] = useState(false)
@@ -102,7 +101,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
   }
 
   const doReset = () => {
-    setResetConfirm(false)
+    setConfirmState(null)
     if (isOnline) {
       room.resetScore()
     } else {
@@ -114,7 +113,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
 
   const handleSave = () => {
     if (records?.length >= 5) {
-      setRecordsFull(true)
+      setConfirmState('recordsFull')
       return
     }
     if (isOnline) {
@@ -197,10 +196,13 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
     setDragOffset(null)
   }, [])
 
-  const onSubLongPress = useCallback(() => {
-    setResetConfirm(true)
+  const onLongPressReset = useCallback(() => {
+    setConfirmState('reset')
   }, [])
-  const subLongPress = useLongPress(onSubLongPress)
+  // 兩隊各自獨立的長按狀態，避免共用同一份 pressing 導致按其中一隊時另一隊也顯示長按進度
+  const hostLongPress = useLongPress(onLongPressReset)
+  const guestLongPress = useLongPress(onLongPressReset)
+  const longPressByTeam = { host: hostLongPress, guest: guestLongPress }
 
   return (
     <div className="container scoreboard">
@@ -226,31 +228,31 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
         />
       )}
 
-      {leaveConfirm && (
+      {confirmState === 'leave' && (
         <ConfirmModal
           message={isOnline ? '確定離開房間？' : '返回首頁將清除目前比分及所有紀錄'}
           confirmLabel="離開"
           cancelLabel="取消"
           onConfirm={handleLeave}
-          onCancel={() => setLeaveConfirm(false)}
+          onCancel={() => setConfirmState(null)}
         />
       )}
 
-      {resetConfirm && (
+      {confirmState === 'reset' && (
         <ConfirmModal
           message="確定重設比數？"
           confirmLabel="重設"
           cancelLabel="取消"
           onConfirm={doReset}
-          onCancel={() => setResetConfirm(false)}
+          onCancel={() => setConfirmState(null)}
         />
       )}
 
-      {recordsFull && (
+      {confirmState === 'recordsFull' && (
         <ConfirmModal
           message="紀錄已滿，請刪除後再新增"
           confirmLabel="確認"
-          onConfirm={() => setRecordsFull(false)}
+          onConfirm={() => setConfirmState(null)}
         />
       )}
 
@@ -288,11 +290,24 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           <button onClick={() => setDrawOpen(true)} className="draw-btn" aria-label="抽籤分隊">
             <Icon name="roulette" size={24} />
           </button>
-          <button className="leave-btn" onClick={() => setLeaveConfirm(true)} aria-label="離開">
+          <button className="leave-btn" onClick={() => setConfirmState('leave')} aria-label="離開">
             <Icon name="leave" size={22} />
           </button>
         </div>
       </header>
+
+      {isOnline && !room.connected && (
+        <div className="connection-banner connection-banner--error">
+          <Icon name="warning" size={14} />
+          網路已斷線，重新連線中…
+        </div>
+      )}
+      {isOnline && room.connected && !room.peerConnected && (
+        <div className="connection-banner connection-banner--warning">
+          <Icon name="warning" size={14} />
+          對方裝置已離線，畫面可能未同步
+        </div>
+      )}
 
       <div className={`scores-wrap${canScore ? ` ctrl-scores${dragOffset ? ' is-dragging' : ''}` : ''}`}>
         {orderedTeams.map(team => {
@@ -336,13 +351,14 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
               <div className="card-toolbar" style={{ backgroundColor: teams[`${team}Color`] }}>
                 <button className="card-toolbar-btn card-toolbar-btn--add" onClick={() => handleAdd(team)}>+</button>
                 <button
-                  className="card-toolbar-btn"
-                  onPointerDown={subLongPress.onPointerDown}
-                  onPointerUp={subLongPress.onPointerUp}
-                  onPointerLeave={subLongPress.onPointerLeave}
-                  onPointerCancel={subLongPress.onPointerCancel}
-                  onContextMenu={subLongPress.onContextMenu}
-                  onClick={subLongPress.wrapClick(() => handleSub(team))}
+                  className={`card-toolbar-btn${longPressByTeam[team].pressing ? ' card-toolbar-btn--pressing' : ''}`}
+                  style={{ '--press-duration': `${longPressByTeam[team].delay}ms` }}
+                  onPointerDown={longPressByTeam[team].onPointerDown}
+                  onPointerUp={longPressByTeam[team].onPointerUp}
+                  onPointerLeave={longPressByTeam[team].onPointerLeave}
+                  onPointerCancel={longPressByTeam[team].onPointerCancel}
+                  onContextMenu={longPressByTeam[team].onContextMenu}
+                  onClick={longPressByTeam[team].wrapClick(() => handleSub(team))}
                 >−</button>
               </div>
             )}
@@ -352,7 +368,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
         {canScore && matchEnded && (
           <button
             className="match-reset-btn"
-            onClick={() => setResetConfirm(true)}
+            onClick={() => setConfirmState('reset')}
             aria-label="比賽結束，重設比數"
           >
             <Icon name="reset" size={26} />
@@ -366,7 +382,7 @@ const ScoreBoard = ({ room, entry, onLeave, onShowGuide }) => {
           score={score}
           onSave={handleSave}
           onDelete={handleDeleteRecord}
-          onResetConfirm={() => { setResetConfirm(true); setPanelOpen(false) }}
+          onResetConfirm={() => { setConfirmState('reset'); setPanelOpen(false) }}
           panelOpen={panelOpen}
           onPanelClose={() => setPanelOpen(false)}
           onSettingsOpen={() => { setSettingsOpen(true); setPanelOpen(false) }}

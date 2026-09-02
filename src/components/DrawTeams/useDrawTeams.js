@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { TEAM_KEYS, MIN_GROUP_SIZE, MAX_GROUP_SIZE, computeQuotas, validateSetup, buildLots, assignScorers } from './drawEngine'
 
 const DEFAULT_CONFIG = { maleTotal: 18, femaleTotal: 0, customQuota: false, teamSizes: { A: 6, B: 6, C: 6 }, groups: [] }
@@ -20,7 +20,6 @@ export const useDrawTeams = ({ initialConfig, onConfigChange } = {}) => {
   const [maleLots, setMaleLots] = useState([])
   const [femaleLots, setFemaleLots] = useState([])
   const [fixedLots, setFixedLots] = useState([])
-  const nextGroupId = useRef((initialConfig?.groups ?? []).reduce((m, g) => Math.max(m, g.id), 0) + 1)
 
   const totalPeople = maleTotal + femaleTotal
 
@@ -65,7 +64,8 @@ export const useDrawTeams = ({ initialConfig, onConfigChange } = {}) => {
   const confirmAddGroup = () => {
     if (!newGroupValid) return
     setGroups(gs => [...gs, {
-      id: nextGroupId.current++,
+      // 用亂數而非本地計數器產生 id，避免房間內兩台裝置同時新增群組時撞號
+      id: crypto.randomUUID(),
       male: newMale,
       female: newFemale,
       mode: newMode,

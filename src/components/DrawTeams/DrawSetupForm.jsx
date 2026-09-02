@@ -1,9 +1,25 @@
+import { useState } from 'react'
 import Icon from '../Icon'
 import GenderCount from './GenderCount'
+import ConfirmModal from '../ConfirmModal'
 import { TEAM_KEYS, TEAM_COLORS, MIN_GROUP_SIZE, MAX_GROUP_SIZE } from './drawEngine'
 
-const DrawSetupForm = ({ draw, onCancel }) => (
+const DrawSetupForm = ({ draw, onCancel }) => {
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null)
+  const newGroupAtCap = draw.newMale + draw.newFemale >= MAX_GROUP_SIZE
+
+  return (
   <>
+    {deleteConfirmId !== null && (
+      <ConfirmModal
+        message="確定要刪除這個群組？"
+        confirmLabel="刪除"
+        cancelLabel="取消"
+        onConfirm={() => { draw.removeGroup(deleteConfirmId); setDeleteConfirmId(null) }}
+        onCancel={() => setDeleteConfirmId(null)}
+      />
+    )}
+
     <div className="draw-gender-row">
       <div className="settings-row draw-total-row">
         <label className="draw-gender-label">♂</label>
@@ -37,7 +53,6 @@ const DrawSetupForm = ({ draw, onCancel }) => (
           )}
           <div className="draw-quota-badge-text">
             <div className="draw-quota-badge-main">{k} 隊 {draw.validation.targetSizes[i]} 人</div>
-            <div className="draw-quota-badge-sub"><GenderCount male={draw.validation.maleQuotas[i]} female={draw.validation.femaleQuotas[i]} /></div>
           </div>
           {draw.customQuota && (
             <button className="btn draw-quota-badge-btn" aria-label={`${k} 隊增加`} onClick={() => draw.setTeamSize(k, draw.teamSizes[k] + 1)}>+</button>
@@ -54,10 +69,12 @@ const DrawSetupForm = ({ draw, onCancel }) => (
 
       {draw.groups.length === 0 && <p className="draw-groups-empty">尚無綁定，{draw.totalPeople} 人各自抽籤</p>}
 
+      <p className="draw-groups-hint">把想同隊的人設成一組：整組一起抽籤會被隨機分到某一隊，直接指定隊伍則不參與抽籤。</p>
+
       {draw.groups.map(g => (
         <div key={g.id} className="draw-group-row">
           <span className="draw-group-desc">
-            <GenderCount male={g.male} female={g.female} />・{g.mode === 'fixed' ? `固定 ${g.team} 隊` : '派代表抽籤'}
+            <GenderCount male={g.male} female={g.female} />・{g.mode === 'fixed' ? `直接指定 ${g.team} 隊` : '整組一起抽籤'}
             {g.scoreDesignated && (
               <span className="draw-group-score-badge">
                 <Icon name="pencil" size={11} />指定計分
@@ -74,7 +91,7 @@ const DrawSetupForm = ({ draw, onCancel }) => (
                 onChange={() => draw.toggleScoreDesignated(g.id)}
               />
             )}
-            <button className="btn draw-group-del" aria-label="刪除群組" onClick={() => draw.removeGroup(g.id)}>
+            <button className="btn draw-group-del" aria-label="刪除群組" onClick={() => setDeleteConfirmId(g.id)}>
               <Icon name="close" size={14} />
             </button>
           </div>
@@ -88,7 +105,7 @@ const DrawSetupForm = ({ draw, onCancel }) => (
             <div className="draw-stepper">
               <button className="btn draw-stepper-btn" onClick={() => draw.setNewMale(m => Math.max(0, m - 1))}>−</button>
               <span className="draw-stepper-value">{draw.newMale}</span>
-              <button className="btn draw-stepper-btn" onClick={() => draw.setNewMale(m => Math.min(MAX_GROUP_SIZE, m + 1))}>+</button>
+              <button className="btn draw-stepper-btn" disabled={newGroupAtCap} onClick={() => draw.setNewMale(m => Math.min(MAX_GROUP_SIZE - draw.newFemale, m + 1))}>+</button>
             </div>
           </div>
           <div className="settings-row">
@@ -96,13 +113,13 @@ const DrawSetupForm = ({ draw, onCancel }) => (
             <div className="draw-stepper">
               <button className="btn draw-stepper-btn" onClick={() => draw.setNewFemale(f => Math.max(0, f - 1))}>−</button>
               <span className="draw-stepper-value">{draw.newFemale}</span>
-              <button className="btn draw-stepper-btn" onClick={() => draw.setNewFemale(f => Math.min(MAX_GROUP_SIZE, f + 1))}>+</button>
+              <button className="btn draw-stepper-btn" disabled={newGroupAtCap} onClick={() => draw.setNewFemale(f => Math.min(MAX_GROUP_SIZE - draw.newMale, f + 1))}>+</button>
             </div>
           </div>
           {!draw.newGroupValid && <p className="draw-error">組合人數需在 {MIN_GROUP_SIZE}~{MAX_GROUP_SIZE} 人之間，目前 {draw.newGroupTotal} 人</p>}
           <div className="draw-add-group-mode">
-            <button className={`btn draw-mode-btn${draw.newMode === 'draw' ? ' active' : ''}`} onClick={() => draw.setNewMode('draw')}>派代表抽籤</button>
-            <button className={`btn draw-mode-btn${draw.newMode === 'fixed' ? ' active' : ''}`} onClick={() => draw.setNewMode('fixed')}>固定隊伍</button>
+            <button className={`btn draw-mode-btn${draw.newMode === 'draw' ? ' active' : ''}`} onClick={() => draw.setNewMode('draw')}>整組一起抽籤</button>
+            <button className={`btn draw-mode-btn${draw.newMode === 'fixed' ? ' active' : ''}`} onClick={() => draw.setNewMode('fixed')}>直接指定隊伍</button>
           </div>
           {draw.newMode === 'fixed' && (
             <div className="draw-add-group-team">
@@ -133,6 +150,7 @@ const DrawSetupForm = ({ draw, onCancel }) => (
       <button className="btn settings-apply" disabled={!draw.validation.ok || draw.addingGroup} onClick={draw.startDraw}>開始抽籤（{draw.totalPeople}）</button>
     </div>
   </>
-)
+  )
+}
 
 export default DrawSetupForm

@@ -88,31 +88,35 @@ export const apportionFemale = (targetSizes, femaleTotal, totalPeople) => {
   return base
 }
 
-// 檢查一批群組（各自帶男/女人數）是否能在不超過各隊男/女配額的情況下全部塞入
-// （個人以 1 人為單位彈性遞補，故只需驗證群組本身；每隊同時比較男、女兩個維度）
-export const canPackGroups = (groups, maleCaps, femaleCaps) => {
-  const mCaps = [...maleCaps]
-  const fCaps = [...femaleCaps]
+// 依「總人數」（不分男女）把群組整批裝箱進各隊剩餘名額：群組內部的男女綁定不拆散、
+// 優先滿足；只要總人數塞得下就成立，隊伍實際男女比例交給後面的個人配額去平衡
+export const packGroupsByTotalSize = (groups, caps) => {
+  const remaining = [...caps]
   const sorted = [...groups].sort((a, b) => (b.male + b.female) - (a.male + a.female))
+  const assignment = []
   const backtrack = (idx) => {
     if (idx === sorted.length) return true
     const g = sorted[idx]
-    for (let i = 0; i < mCaps.length; i++) {
-      if (mCaps[i] >= g.male && fCaps[i] >= g.female) {
-        mCaps[i] -= g.male
-        fCaps[i] -= g.female
+    const size = g.male + g.female
+    for (const i of shuffle([0, 1, 2])) {
+      if (remaining[i] >= size) {
+        remaining[i] -= size
+        assignment.push({ id: g.id, male: g.male, female: g.female, teamIndex: i })
         if (backtrack(idx + 1)) return true
-        mCaps[i] += g.male
-        fCaps[i] += g.female
+        assignment.pop()
+        remaining[i] += size
       }
     }
     return false
   }
-  return backtrack(0)
+  const ok = backtrack(0)
+  return { ok, assignment, openSlots: ok ? remaining : caps }
 }
 
-// 女生配額計算「看得到」固定群組：固定群組需要的男/女人數先當作該隊下限保留起來，
-// 剩下的名額才用比例分配法隨機分給三隊，保證固定群組一定塞得下
+// 女生配額計算：先保留固定群組的男/女下限，再把抽籤群組整批（男女綁定不拆散）依總人數
+// 裝箱進各隊剩餘名額，最後才用比例分配法把「個人」名額盡量平均分給三隊——
+// 這樣像「3 個女生一組」這種無法均分的群組，只要總名額夠就能順利成隊，
+// 剩下沒綁定的散客才會被平均分散，不會恰好又補進同一隊
 export const validateSetup = ({ targetSizes, femaleTotal, totalPeople, targetSizeMismatch }, groups) => {
   const zeroQuotas = targetSizes.map(() => 0)
 
@@ -120,11 +124,15 @@ export const validateSetup = ({ targetSizes, femaleTotal, totalPeople, targetSiz
     return { ok: false, targetSizes, femaleQuotas: zeroQuotas, maleQuotas: zeroQuotas, message: '自訂各隊人數總和與男女總人數不符，請調整' }
   }
 
+  const maleTotal = totalPeople - femaleTotal
   const maleSum = groups.reduce((s, g) => s + g.male, 0)
   const femaleSum = groups.reduce((s, g) => s + g.female, 0)
 
-  if (maleSum + femaleSum > totalPeople) {
-    return { ok: false, targetSizes, femaleQuotas: zeroQuotas, maleQuotas: zeroQuotas, message: '綁定人數總和超過總人數，請調整' }
+  if (maleSum > maleTotal) {
+    return { ok: false, targetSizes, femaleQuotas: zeroQuotas, maleQuotas: zeroQuotas, message: `綁定男生人數（${maleSum}）超過男生總人數（${maleTotal}），請調整` }
+  }
+  if (femaleSum > femaleTotal) {
+    return { ok: false, targetSizes, femaleQuotas: zeroQuotas, maleQuotas: zeroQuotas, message: `綁定女生人數（${femaleSum}）超過女生總人數（${femaleTotal}），請調整` }
   }
 
   const fixedMaleByTeam = { A: 0, B: 0, C: 0 }
@@ -151,20 +159,26 @@ export const validateSetup = ({ targetSizes, femaleTotal, totalPeople, targetSiz
     }
   }
 
-  const fixedFemaleSum = TEAM_KEYS.reduce((s, k) => s + fixedFemaleByTeam[k], 0)
-  const remCapTotal = remCap.reduce((s, c) => s + c, 0)
-  const extraFemale = apportionFemale(remCap, femaleTotal - fixedFemaleSum, remCapTotal)
+  const drawGroups = groups.filter(g => g.mode === 'draw')
+  const { ok: packOk, assignment, openSlots } = packGroupsByTotalSize(drawGroups, remCap)
 
-  const femaleQuotas = targetSizes.map((_, i) => fixedFemaleByTeam[TEAM_KEYS[i]] + extraFemale[i])
+  if (!packOk) {
+    return { ok: false, targetSizes, femaleQuotas: zeroQuotas, maleQuotas: zeroQuotas, message: '目前綁定人數組合無法分成三隊，請調整綁定設定' }
+  }
+
+  const groupFemaleByTeam = [0, 0, 0]
+  assignment.forEach(a => { groupFemaleByTeam[a.teamIndex] += a.female })
+
+  const fixedFemaleSum = TEAM_KEYS.reduce((s, k) => s + fixedFemaleByTeam[k], 0)
+  const groupFemaleSum = groupFemaleByTeam.reduce((s, f) => s + f, 0)
+  const openSlotsTotal = openSlots.reduce((s, c) => s + c, 0)
+  const individualFemale = apportionFemale(openSlots, femaleTotal - fixedFemaleSum - groupFemaleSum, openSlotsTotal)
+
+  const femaleQuotas = targetSizes.map((_, i) => fixedFemaleByTeam[TEAM_KEYS[i]] + groupFemaleByTeam[i] + individualFemale[i])
   const maleQuotas = targetSizes.map((t, i) => t - femaleQuotas[i])
 
   const remainingMale = maleQuotas.map((q, i) => q - fixedMaleByTeam[TEAM_KEYS[i]])
   const remainingFemale = femaleQuotas.map((q, i) => q - fixedFemaleByTeam[TEAM_KEYS[i]])
-  const drawGroups = groups.filter(g => g.mode === 'draw')
-
-  if (!canPackGroups(drawGroups, remainingMale, remainingFemale)) {
-    return { ok: false, targetSizes, femaleQuotas, maleQuotas, message: '目前綁定人數組合無法分成三隊，請調整綁定設定' }
-  }
 
   return { ok: true, targetSizes, femaleQuotas, maleQuotas, remainingMale, remainingFemale, drawGroups }
 }
