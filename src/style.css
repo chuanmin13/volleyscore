@@ -17,6 +17,15 @@
   --border:      rgba(231, 231, 231, 0.2);
   --border-mid:  rgba(231, 231, 231, 0.4);
 
+  /* z-index 分層（數字越大越上層，同層互相排斥、不會同時出現在畫面上） */
+  --z-panel:      20;  /* 面板／下拉選單（ctrl-panel） */
+  --z-header:     25;  /* 頁首 */
+  --z-fullscreen: 50;  /* 全螢幕次要覆蓋（pwa-banner、draw-standalone） */
+  --z-modal:      100; /* 一般彈窗（settings-overlay、code-modal-overlay、guide-overlay） */
+  --z-confirm:    200; /* 二次確認彈窗，必須蓋過一般彈窗 */
+  --z-toast:      500; /* 全域提示 */
+  --z-loading:    999; /* 載入中遮罩，永遠最上層 */
+
   /* Type scale */
   --text-xs:   0.72rem;
   --text-sm:   0.85rem;
@@ -167,16 +176,33 @@ input:focus {
 }
 
 /* =========================================
+   全螢幕遮罩共用基底：loading / code-modal / confirm-modal / settings / guide
+   五者互斥、不會同時出現在畫面上，共用定位屬性避免各自重複一份
+   ========================================= */
+.loading-overlay,
+.code-modal-overlay,
+.modal-backdrop,
+.settings-overlay,
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+}
+
+.loading-overlay,
+.code-modal-overlay,
+.modal-backdrop,
+.settings-overlay {
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================
    Loading Overlay
    ========================================= */
 .loading-overlay {
-  position: fixed;
-  inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: var(--z-loading);
 }
 
 .loading-ball {
@@ -270,10 +296,6 @@ input:focus {
   height: 1px;
   background: var(--border);
 }
-
-/* .landing-btn--offline {
-  width: 100%;
-} */
 
 /* Primary — 暖黃底 + 深藍字 */
 .landing-btn--display {
@@ -472,7 +494,7 @@ input:focus {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 25;
+  z-index: var(--z-header);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -483,6 +505,27 @@ input:focus {
   -webkit-backdrop-filter: blur(8px);
   color: var(--text);
   min-height: 44px;
+}
+
+.connection-banner {
+  position: relative;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: var(--text-xs);
+  color: #fff;
+  text-align: center;
+}
+
+.connection-banner--error {
+  background: var(--energy);
+}
+
+.connection-banner--warning {
+  background: var(--warm);
 }
 
 .room-badge-code {
@@ -608,13 +651,8 @@ input:focus {
 
 /* Room Code Modal */
 .code-modal-overlay {
-  position: fixed;
-  inset: 0;
   background: rgba(0, 0, 0, 0.65);
-  z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: var(--z-modal);
 }
 
 .code-modal {
@@ -657,14 +695,12 @@ input:focus {
   color: var(--text-muted);
 }
 
-.code-modal-steps {
-  margin: 2px 0 0;
-  padding-left: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: var(--text-xs);
-  color: var(--text-muted);
+/* QR code 本身是黑白模組，深色底看不清楚，用白底卡片墊高對比 */
+.code-modal-qr {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  line-height: 0;
 }
 
 @media (orientation: landscape) {
@@ -732,13 +768,8 @@ input:focus {
 
 /* ConfirmModal */
 .modal-backdrop {
-  position: fixed;
-  inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: var(--z-confirm);
 }
 
 .modal-box {
@@ -891,6 +922,8 @@ input:focus {
 }
 
 .card-toolbar-btn {
+  position: relative;
+  overflow: hidden;
   flex: 1;
   height: 100%;
   background: rgba(0, 0, 0, 0.1);
@@ -913,12 +946,28 @@ input:focus {
   background: rgba(0, 0, 0, 0.35);
 }
 
+/* 長按扣分鍵會觸發重設確認，按住時由左至右填色，讓使用者知道正在計時、還沒放開就會跳出確認框 */
+.card-toolbar-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+.card-toolbar-btn--pressing::after {
+  transform: scaleX(1);
+  transition: transform var(--press-duration, 600ms) linear;
+}
+
 .ctrl-panel {
   position: absolute;
   top: 60px;
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: var(--z-panel);
   display: flex;
   flex-direction: column;
   background: rgba(0, 0, 0, 0.55);
@@ -982,7 +1031,6 @@ input:focus {
 
 .ctrl-records-panel {
   padding: 12px 20px;
-  /* max-height: 35vh; */
   overflow-y: auto;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -1022,7 +1070,7 @@ input:focus {
   font-size: var(--text-sm);
   opacity: 0;
   pointer-events: none;
-  z-index: 500;
+  z-index: var(--z-toast);
   transition: opacity 0.25s, transform 0.25s;
   white-space: nowrap;
 }
@@ -1034,18 +1082,28 @@ input:focus {
 
 /* Settings Drawer（modal overlay） */
 .settings-overlay {
-  position: fixed;
-  inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: var(--z-modal);
   /* 用 padding 讓子層的百分比高度只算「安全區內」的可視範圍，避免卡片被 notch/瀏海擋住 */
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
+.settings-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
 .settings-inner {
+  position: relative;
   background: var(--bg-dark);
   color: var(--text);
   border-radius: 16px;
@@ -1172,6 +1230,7 @@ input:focus {
   position: absolute;
   top: -12px;
   right: -12px;
+  z-index: 1;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -1245,8 +1304,8 @@ input:focus {
 }
 
 .draw-stepper-btn {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   background: var(--border);
   color: var(--text);
@@ -1305,9 +1364,9 @@ input:focus {
 }
 
 .draw-quota-badge-btn {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   background: rgba(255, 255, 255, 0.25);
   color: #fff;
   font-size: var(--text-sm);
@@ -1321,6 +1380,21 @@ input:focus {
   border-radius: 10px;
   padding: 12px;
   margin-bottom: 12px;
+  max-height: 38vh;
+  overflow-y: auto;
+}
+
+.draw-groups-hint {
+  margin: 0 0 8px;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.draw-standalone-notice {
+  margin: 0 0 12px;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-align: center;
 }
 
 .draw-groups-header {
@@ -1574,7 +1648,7 @@ input:focus {
   position: fixed;
   inset: 0;
   background: var(--bg-gradient);
-  z-index: 50;
+  z-index: var(--z-fullscreen);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1593,6 +1667,14 @@ input:focus {
 .settings-apply {
   background: var(--warm);
   color: #fff;
+  padding: 10px 28px;
+  font-size: var(--text-base);
+}
+
+/* 不可逆的破壞性操作（如重新抽籤）用警示色跟一般「套用」動作區隔 */
+.settings-apply-danger {
+  background: var(--energy);
+  color: var(--energy-fg);
   padding: 10px 28px;
   font-size: var(--text-base);
 }
@@ -1684,7 +1766,7 @@ input:focus {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: var(--z-fullscreen);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1724,11 +1806,8 @@ input:focus {
    Guide Overlay
    ========================================= */
 .guide-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
+  z-index: var(--z-modal);
   background: var(--bg-gradient);
-  display: flex;
   flex-direction: column;
   overflow: hidden;
 }
@@ -1988,17 +2067,10 @@ input:focus {
   border-radius: 0;
 }
 
-/* 手機橫式 */
+/* 寬度 ≥576px 時解除手機直向的寬度上限（.scores-wrap/.team-name 這裡原本也有同名規則，
+   但都已經被更前面 .scoreboard 開頭的高優先權規則完全覆蓋，屬死碼，已移除） */
 @media screen and (min-width: 576px) {
-    .scores-wrap {
-        flex-direction: row;
-    }
-
     body {
         max-width: 100%;
-    }
-
-    .team-name {
-        font-size: 6vw;
     }
 }

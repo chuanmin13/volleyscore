@@ -1,10 +1,19 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const OTP_LENGTH = 4
 
 const OtpInput = ({ onComplete, error, disabled }) => {
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(''))
   const refs = useRef([])
+
+  // 驗證失敗時保留使用者已輸入的內容，只把焦點移回第一格方便訂正，
+  // 不要整組清空重打（之前用 key={joinError} 強制 remount 會把輸入內容炸光）
+  useEffect(() => {
+    if (error) {
+      refs.current[0]?.focus()
+      refs.current[0]?.select()
+    }
+  }, [error])
 
   const handleChange = (i, raw) => {
     const val = raw.replace(/[^0-9]/g, '').slice(-1)

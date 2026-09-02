@@ -55,7 +55,7 @@ const PwaBanner = ({ onShowChange }) => {
   )
 }
 
-const Landing = ({ onCreateRoom, onJoinRoom, onOffline, onOpenDraw, joinError, onClearError, onShowGuide, roomGoneNotice }) => {
+const Landing = ({ onCreateRoom, onJoinRoom, onOffline, onOpenDraw, joinError, onClearError, createError, onShowGuide, roomGoneNotice }) => {
   const [view, setView] = useState('main') // 'main' | 'join'
   const [creating, setCreating] = useState(false)
   const [joining, setJoining] = useState(false)
@@ -145,6 +145,8 @@ const Landing = ({ onCreateRoom, onJoinRoom, onOffline, onOpenDraw, joinError, o
           </div>
         </div>
       </div>
+
+      {createError && <p className="join-error">{createError}</p>}
 
       <PwaBanner onShowChange={setBannerVisible} />
       <span

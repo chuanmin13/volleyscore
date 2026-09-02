@@ -1,6 +1,16 @@
-import qrCode from '../../assets/qrcode.jpg'
+import { useEffect } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 
 const RoomCodeModal = ({ roomCode, onClose }) => {
+  // 用目前所在網址動態組出加入連結，本機開發、正式站都能正確產生，不寫死網域
+  const joinUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`
+
+  useEffect(() => {
+    const handleKeyDown = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   return (
     <div className="code-modal-overlay" onClick={onClose}>
       <div className="code-modal" onClick={e => e.stopPropagation()}>
@@ -21,13 +31,10 @@ const RoomCodeModal = ({ roomCode, onClose }) => {
 
         <div className="code-modal-section">
           <p className="code-modal-section-title">可掃碼加入</p>
-          <img src={qrCode} alt="qrcode" width={140} height={140} />
-          <p className="code-modal-text">volleyscore.ctheworldx.com</p>
-          <ol className="code-modal-steps">
-            <li>掃碼開啟計分板</li>
-            <li>點選「進入房間」</li>
-            <li>輸入房間號</li>
-          </ol>
+          <div className="code-modal-qr">
+            <QRCodeSVG value={joinUrl} size={140} />
+          </div>
+          <p className="code-modal-text">掃描後將直接加入本房間</p>
         </div>
       </div>
     </div>

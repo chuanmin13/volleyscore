@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Icon from '../Icon'
 
 const PRESET_COLORS = ['#cd2424', '#244ecd', '#1f8f1f', '#e68907', '#7b2d8b', '#1a1a1a']
 
@@ -9,9 +10,20 @@ const SettingsOverlay = ({ teams, onApply, onClose, setPointSound, onSetPointSou
     onApply(form)
   }
 
+  // 設定到一半容易誤觸背景關閉、遺失未儲存內容，改成只能點 X 或取消才會關閉；
+  // Esc 是明確的鍵盤操作意圖，跟意外點擊不同，仍保留
+  useEffect(() => {
+    const handleKeyDown = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   return (
-    <div className="settings-overlay" onClick={onClose}>
-      <div className="settings-inner" role="dialog" aria-modal="true" aria-labelledby="settings-title" onClick={e => e.stopPropagation()}>
+    <div className="settings-overlay">
+      <div className="settings-inner" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <button className="settings-close-btn" onClick={onClose} aria-label="關閉">
+          <Icon name="close" size={18} />
+        </button>
         <h3 id="settings-title">設定隊伍</h3>
         {['host', 'guest'].map(team => (
           <div key={team}>

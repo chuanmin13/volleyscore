@@ -17,6 +17,7 @@ const App = () => {
   const [showGuide, setShowGuide] = useState(false)
 
   const [joinError, setJoinError] = useState('')
+  const [createError, setCreateError] = useState('')
   const [roomGoneNotice, setRoomGoneNotice] = useState(false)
   // 掛載時網址上有合法房間碼才需要「還原」，沒有就不用等，直接顯示 Landing
   const [restoring, setRestoring] = useState(() => ROOM_CODE_PATTERN.test(getRoomCodeFromUrl() || ''))
@@ -49,11 +50,16 @@ const App = () => {
   }, [])
 
   const handleCreateRoom = async () => {
-    setRoomGoneNotice(false)
-    const code = await room.createRoom()
-    window.history.replaceState(null, '', `?room=${code}`)
-    setEntry('create')
-    setMode('scoreboard')
+    try {
+      setRoomGoneNotice(false)
+      setCreateError('')
+      const code = await room.createRoom()
+      window.history.replaceState(null, '', `?room=${code}`)
+      setEntry('create')
+      setMode('scoreboard')
+    } catch (e) {
+      setCreateError(e.message)
+    }
   }
 
   const handleJoinRoom = async (code) => {
@@ -88,6 +94,7 @@ const App = () => {
           onOpenDraw={() => setMode('draw')}
           joinError={joinError}
           onClearError={() => setJoinError('')}
+          createError={createError}
           onShowGuide={() => setShowGuide(true)}
           roomGoneNotice={roomGoneNotice}
         />
