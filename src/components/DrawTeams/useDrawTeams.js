@@ -23,6 +23,26 @@ export const useDrawTeams = ({ initialConfig, onConfigChange } = {}) => {
 
   const totalPeople = maleTotal + femaleTotal
 
+  // 設定總人數：維持男生人數，女生自動補足差額；男生若超過新總數則一起下修
+  const setTotalPeople = (value) => {
+    const next = Math.max(0, value)
+    const nextMale = Math.min(maleTotal, next)
+    setMaleTotal(nextMale)
+    setFemaleTotal(next - nextMale)
+  }
+
+  // 鎖定總人數下調整性別：一邊加、另一邊自動減，總數不變
+  const adjustMale = (delta) => {
+    const nextMale = Math.min(totalPeople, Math.max(0, maleTotal + delta))
+    setMaleTotal(nextMale)
+    setFemaleTotal(totalPeople - nextMale)
+  }
+  const adjustFemale = (delta) => {
+    const nextFemale = Math.min(totalPeople, Math.max(0, femaleTotal + delta))
+    setFemaleTotal(nextFemale)
+    setMaleTotal(totalPeople - nextFemale)
+  }
+
   // 只同步「設定」（人數、群組），不同步抽籤結果；沒有 onConfigChange 就不會寫入（獨立入口用）
   useEffect(() => {
     onConfigChange?.({ maleTotal, femaleTotal, customQuota, teamSizes, groups })
@@ -113,6 +133,7 @@ export const useDrawTeams = ({ initialConfig, onConfigChange } = {}) => {
   return {
     phase, startDraw, backToSetup,
     maleTotal, setMaleTotal, femaleTotal, setFemaleTotal,
+    totalPeople, setTotalPeople, adjustMale, adjustFemale,
     customQuota, setCustomQuota, enableCustomQuota,
     teamSizes, setTeamSize,
     groups, removeGroup, toggleScoreDesignated,
@@ -120,7 +141,7 @@ export const useDrawTeams = ({ initialConfig, onConfigChange } = {}) => {
     newMale, setNewMale, newFemale, setNewFemale,
     newMode, setNewMode, newTeam, setNewTeam,
     newGroupTotal, newGroupValid, confirmAddGroup,
-    totalPeople, validation,
+    validation,
     fixedLots, groupLots, maleLots, femaleLots,
     revealLot, revealedCount,
   }
