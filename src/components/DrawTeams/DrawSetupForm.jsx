@@ -20,22 +20,40 @@ const DrawSetupForm = ({ draw, onCancel }) => {
       />
     )}
 
+    <div className="settings-row draw-total-row draw-total-people-row">
+      <label className="draw-gender-label">總人數</label>
+      <div className="draw-stepper">
+        <button className="btn draw-stepper-btn" onClick={() => draw.setTotalPeople(draw.totalPeople - 1)}>−</button>
+        <input
+          type="number"
+          inputMode="numeric"
+          className="draw-total-people-input"
+          value={draw.totalPeople}
+          onChange={(e) => {
+            const n = parseInt(e.target.value, 10)
+            draw.setTotalPeople(Number.isNaN(n) ? 0 : n)
+          }}
+        />
+        <button className="btn draw-stepper-btn" onClick={() => draw.setTotalPeople(draw.totalPeople + 1)}>+</button>
+      </div>
+    </div>
+
     <div className="draw-gender-row">
       <div className="settings-row draw-total-row">
         <label className="draw-gender-label">♂</label>
         <div className="draw-stepper">
-          <button className="btn draw-stepper-btn" onClick={() => draw.setMaleTotal(t => Math.max(0, t - 1))}>−</button>
+          <button className="btn draw-stepper-btn" disabled={draw.maleTotal <= 0} onClick={() => draw.adjustMale(-1)}>−</button>
           <span className="draw-stepper-value">{draw.maleTotal}</span>
-          <button className="btn draw-stepper-btn" onClick={() => draw.setMaleTotal(t => t + 1)}>+</button>
+          <button className="btn draw-stepper-btn" disabled={draw.femaleTotal <= 0} onClick={() => draw.adjustMale(1)}>+</button>
         </div>
       </div>
       <span className="draw-gender-divider">/</span>
       <div className="settings-row draw-total-row">
         <label className="draw-gender-label">♀</label>
         <div className="draw-stepper">
-          <button className="btn draw-stepper-btn" onClick={() => draw.setFemaleTotal(t => Math.max(0, t - 1))}>−</button>
+          <button className="btn draw-stepper-btn" disabled={draw.femaleTotal <= 0} onClick={() => draw.adjustFemale(-1)}>−</button>
           <span className="draw-stepper-value">{draw.femaleTotal}</span>
-          <button className="btn draw-stepper-btn" onClick={() => draw.setFemaleTotal(t => t + 1)}>+</button>
+          <button className="btn draw-stepper-btn" disabled={draw.maleTotal <= 0} onClick={() => draw.adjustFemale(1)}>+</button>
         </div>
       </div>
     </div>

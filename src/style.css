@@ -1321,6 +1321,34 @@ input:focus {
   font-weight: 700;
 }
 
+.draw-stepper-btn:disabled {
+  opacity: 0.35;
+}
+
+.draw-total-people-row {
+  margin-bottom: 12px;
+}
+
+.draw-total-people-input {
+  width: 56px;
+  height: 36px;
+  text-align: center;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  background: var(--border);
+  border: none;
+  border-radius: 8px;
+  padding: 0;
+  -moz-appearance: textfield;
+}
+
+.draw-total-people-input::-webkit-outer-spin-button,
+.draw-total-people-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .draw-quota-mode-toggle {
   margin-bottom: 14px;
 }
